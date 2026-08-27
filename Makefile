@@ -31,7 +31,11 @@ clean:
 document:
 	@Rscript -e "devtools::document('.')"
 
+# CRAN's incoming check flags a Date more than a month old, so stamp it when
+# the tarball is built. Version stays hand-maintained: it is the release
+# decision; the date is just when the artifact was cut.
 build: clean
+	@sed -i.bak "s/^Date: .*/Date: $$(date +%Y-%m-%d)/" DESCRIPTION && rm -f DESCRIPTION.bak
 	@Rscript -e "Rcpp::compileAttributes('.')"
 	@R CMD build .
 
