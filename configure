@@ -4,29 +4,22 @@
 #
 # The C++ core is compiled directly into the package shared object via
 # Makevars — no CMake, no network access, no pre-built static archives. This
-# script only has to (1) stage the core sources when building in the monorepo,
+# script only has to (1) check the vendored core sources are present,
 # (2) generate the list of object files to compile, and (3) detect OpenMP
 # support (which needs special handling on macOS).
 
 set -e
 
 # ---------------------------------------------------------------------------
-# 1. Stage core C++ sources.
+# 1. Check the vendored core is present.
 #
-# Tarball (CRAN): `src/core` is already bundled by `make r-prepare`.
-# Monorepo (devtools::load_all / install_github with subdir): copy `../../core`
-# into `src/core` so the same relative include paths work in both contexts.
+# The core sources are committed under `src/core` (refreshed by
+# `make vendor-core`, pinned by CORE_VERSION), so they are there in a git
+# checkout and in the tarball alike.
 # ---------------------------------------------------------------------------
 if [ ! -d src/core ]; then
-  if [ -d ../../core ]; then
-    echo "* Monorepo detected: staging core sources into src/core"
-    mkdir -p src/core
-    cp -R ../../core/include src/core/include
-    cp -R ../../core/src src/core/src
-  else
-    echo "ERROR: Cannot find core source. Expected src/core (tarball) or ../../core (monorepo)."
-    exit 1
-  fi
+  echo "ERROR: src/core is missing. Vendor the core with 'make vendor-core CORE=<path> REF=<tag>'."
+  exit 1
 fi
 
 # ---------------------------------------------------------------------------

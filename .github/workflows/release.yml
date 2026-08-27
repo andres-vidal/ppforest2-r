@@ -1,0 +1,109 @@
+name: Release
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  check:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      # Third-party actions are SHA-pinned (not tag-pinned) in the release
+      # workflow. `@v4` is a mutable reference: an upstream compromise or an
+      # accidental breaking change on the tag would silently flow into the
+      # release job, which has `contents: write`. Pinning to the commit SHA
+      # makes the dependency explicit and auditable. Dependabot is configured
+      # (`.github/dependabot.yml`) to open PRs when these SHAs move.
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+      - uses: r-lib/actions/setup-r@d3c5be51b12e724e68f33216ca3c148b66d5f0b6  # v2
+      - uses: r-lib/actions/setup-tinytex@d3c5be51b12e724e68f33216ca3c148b66d5f0b6  # v2
+        env:
+          TINYTEX_INSTALLER: ${{ runner.os == 'Windows' && 'TinyTeX' || '' }}
+      - uses: r-lib/actions/setup-r-dependencies@d3c5be51b12e724e68f33216ca3c148b66d5f0b6  # v2
+        with:
+          extra-packages: any::devtools
+      - run: make check-cran
+
+  release:
+    needs: [check]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          # Fetch enough history to check ancestry against origin/main below.
+          # Shallow (depth=1) defaults would fail the `merge-base` check.
+          fetch-depth: 0
+      - name: Verify tag commit is reachable from main
+        run: |
+          # Gate releases to commits that actually landed on main. Without
+          # this, any branch (hotfix, feature, fork) could produce a v* tag
+          # and trigger a release with contents: write.
+          git fetch --no-tags origin main
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "ERROR: Release tag $GITHUB_REF_NAME points at commit $GITHUB_SHA"
+            echo "which is not reachable from origin/main. Release tags must be"
+            echo "cut from commits that have already landed on main."
+            exit 1
+          fi
+      - name: Extract version from tag
+        id: version
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+      - name: Verify DESCRIPTION version matches tag
+        run: |
+          # DESCRIPTION is the single source of the package version, so it must
+          # agree with the tag or the tarball would ship a version that
+          # disagrees with the GitHub release.
+          desc_version=$(awk '/^Version:/ {print $2; exit}' DESCRIPTION)
+          tag_version="${{ steps.version.outputs.version }}"
+          if [ "$desc_version" != "$tag_version" ]; then
+            echo "ERROR: DESCRIPTION Version ($desc_version) does not match tag ($tag_version)."
+            exit 1
+          fi
+      - name: Extract changelog for this version
+        id: changelog
+        run: |
+          version="${{ steps.version.outputs.version }}"
+          # Walk NEWS.md newest-first: flip `found` on at the matching heading,
+          # print subsequent lines, stop at the next `# ppforest2 ` heading.
+          awk "found && /^# ppforest2 /{exit} /^# ppforest2 ${version}/{found=1} found{print}" NEWS.md > release_notes.md
+          if [ ! -s release_notes.md ]; then
+            echo "ERROR: NEWS.md has no entry for version ${version}."
+            echo "Add a '# ppforest2 ${version}' section at the top of NEWS.md before tagging."
+            exit 1
+          fi
+          # Guard against the opposite bug: appending instead of prepending
+          # would sweep up every older release.
+          heading_count=$(grep -c '^# ppforest2 ' release_notes.md)
+          if [ "$heading_count" -ne 1 ]; then
+            echo "ERROR: Expected exactly one '# ppforest2 ' heading in the extracted notes, got ${heading_count}."
+            echo "NEWS.md is probably ordered oldest-first; prepend new entries above older ones."
+            exit 1
+          fi
+          echo "Release notes:"
+          cat release_notes.md
+      - name: Report the vendored core
+        run: |
+          # The release notes record which core this package was built against,
+          # so a released tarball can be traced back to a ppforest2-core commit.
+          echo "" >> release_notes.md
+          echo "Built against ppforest2-core \`$(cat CORE_VERSION)\`." >> release_notes.md
+      - uses: r-lib/actions/setup-r@d3c5be51b12e724e68f33216ca3c148b66d5f0b6  # v2
+      - uses: r-lib/actions/setup-r-dependencies@d3c5be51b12e724e68f33216ca3c148b66d5f0b6  # v2
+        with:
+          extra-packages: any::devtools
+      - name: Build source tarball
+        run: make build
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228  # v3
+        with:
+          body_path: release_notes.md
+          generate_release_notes: false
+          files: ppforest2_${{ steps.version.outputs.version }}.tar.gz

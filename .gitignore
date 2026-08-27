@@ -18,3 +18,4 @@ inst/lib
 tests/testthat/Rplots.pdf
 
 .DS_Store
+docs/

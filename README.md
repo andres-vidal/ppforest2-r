@@ -1,7 +1,7 @@
 # ppforest2 <img src="man/figures/logo.png" align="right" height="139" alt="ppforest2 logo" />
 
 <!-- badges: start -->
-[![R-CMD-check](https://github.com/andres-vidal/ppforest2/actions/workflows/run-r-check.yml/badge.svg)](https://github.com/andres-vidal/ppforest2/actions/workflows/run-r-check.yml)
+[![R-CMD-check](https://github.com/andres-vidal/ppforest2-r/actions/workflows/r-check.yml/badge.svg)](https://github.com/andres-vidal/ppforest2-r/actions/workflows/r-check.yml)
 <!-- badges: end -->
 
 ppforest2 provides projection pursuit oblique decision trees and random
@@ -22,7 +22,7 @@ optimisation, OOB error estimation, and
 
 ```r
 # install.packages("devtools")
-devtools::install_github("andres-vidal/ppforest2", subdir = "bindings/R", build = FALSE)
+devtools::install_github("andres-vidal/ppforest2-r", build = FALSE)
 ```
 
 ## Usage
@@ -108,7 +108,8 @@ restored <- load_json("model.json")
 
 - `vignette("introduction")` — a tutorial covering trees, forests,
   visualisation, and tidymodels integration.
-- [C++ API Reference](https://andres-vidal.github.io/ppforest2/main/cpp/) —
-  core library documentation (Doxygen).
-- [GitHub repository](https://github.com/andres-vidal/ppforest2) —
-  source code, build instructions, and benchmarks.
+- [GitHub repository](https://github.com/andres-vidal/ppforest2-r) —
+  source code and build instructions.
+- [ppforest2-core](https://github.com/andres-vidal/ppforest2-core) —
+  the C++ engine this package compiles, with its API reference (Doxygen),
+  command-line interface, and benchmarks.

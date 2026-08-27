@@ -6,3 +6,8 @@
 ^_pkgdown\.yml$
 ^pkgdown$
 ^tests/testthat/Rplots\.pdf$
+^Makefile$
+^tools$
+^CORE_VERSION$
+^\.github$
+^docs$

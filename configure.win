@@ -6,17 +6,10 @@
 
 set -e
 
-# Stage core sources when building from the monorepo.
+# The core sources are committed under `src/core` (see `make vendor-core`).
 if [ ! -d src/core ]; then
-  if [ -d ../../core ]; then
-    echo "* Monorepo detected: staging core sources into src/core"
-    mkdir -p src/core
-    cp -R ../../core/include src/core/include
-    cp -R ../../core/src src/core/src
-  else
-    echo "ERROR: Cannot find core source. Expected src/core (tarball) or ../../core (monorepo)."
-    exit 1
-  fi
+  echo "ERROR: src/core is missing. Vendor the core with 'make vendor-core CORE=<path> REF=<tag>'."
+  exit 1
 fi
 
 # Generate the OBJECTS list (see configure for which sources are included).

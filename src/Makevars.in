@@ -1,7 +1,7 @@
 CXX_STD = CXX17
 
 # The C++ core is compiled directly into the package shared object. `configure`
-# stages the required core sources under `core/` and generates the `OBJECTS`
+# reads the vendored core sources under `core/` and generates the `OBJECTS`
 # list below (models / stats / serialization / utils / strategies — the CLI,
 # io, golden and test translation units are excluded, so `fmt`, `csv-parser`
 # and CMake are not needed to build the R package). Eigen is provided by
