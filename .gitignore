@@ -19,3 +19,5 @@ tests/testthat/Rplots.pdf
 
 .DS_Store
 docs/
+CLAUDE.md
+.claude
