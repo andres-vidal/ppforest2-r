@@ -55,8 +55,16 @@ find src/core -name 'CMakeLists.txt' -delete
 rm -rf inst/golden
 cp -R "${STAGE}/golden" inst/golden
 
-echo "${CORE_REF}" > CORE_VERSION
+# Record what the ref resolved to, not the ref as typed: a branch name or HEAD
+# would pin nothing. A tag is kept as-is because it is already immutable.
+if git -C "${CORE_REPO}" describe --exact-match --tags "${CORE_REF}" >/dev/null 2>&1; then
+  PIN=$(git -C "${CORE_REPO}" describe --exact-match --tags "${CORE_REF}")
+else
+  PIN=$(git -C "${CORE_REPO}" rev-parse "${CORE_REF}")
+fi
+
+echo "${PIN}" > CORE_VERSION
 
 echo "* Vendored $(find src/core -name '*.cpp' | wc -l | tr -d ' ') core sources and $(find inst/golden -type f | wc -l | tr -d ' ') golden files."
-echo "* CORE_VERSION is now ${CORE_REF}."
+echo "* CORE_VERSION is now ${PIN}."
 echo "* Review 'git diff' and run 'make check-cran'."

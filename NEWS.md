@@ -3,9 +3,12 @@
 ## New features
 
 - `summary()` on a classification tree or forest now reports a per-class error rate alongside each confusion matrix, and prints the overall error rate above the matrix rather than below it. A class with no observations in the data is shown as `-` rather than `nan%` — this happens when the model predicts a class that never appears as an actual label, for example when predicting on a subset of the data.
+- Text sizes in the tree structure plot are configurable through options (`ppforest2.text_edge`, `ppforest2.text_tick`, `ppforest2.text_leaf`, `ppforest2.text_proj`), and `ppforest2.text_scale` multiplies all of them at once for rendering the plot large.
 
 ## Bug fixes
 
+- Projection coefficients in the tree structure plot are formatted to three significant digits instead of two fixed decimals, matching the axis tick labels in the same plot. The projector is normalized so the values it projects always have the same spread whatever the units of the input data, which leaves its coefficients at a magnitude set by the data rather than by the split; the iris root projector `.00429 / -.0391 / .0259 / .0335` rendered as `.00 / .04 / .03 / .03`, merging the two petal terms and dropping sepal length to zero.
+- `pptr()` and `pprf()` no longer abort with the internal error `Grouping::init: partition must be rooted at row 0` when the response's class blocks are contiguous but ordered by decreasing factor level (for example a two-class factor whose first row is its second level, or the bundled `crab` dataset with default alphabetical levels). The classification path now sorts the response into ascending group-id order whenever it is not already, matching the regression path and the command-line tool.
 - The resolved thread count is clamped to at least 1 — `hardware_concurrency()` may report 0, and a non-positive OpenMP thread count is undefined behavior.
 
 # ppforest2 0.1.2
