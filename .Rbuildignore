@@ -11,3 +11,5 @@
 ^CORE_VERSION$
 ^\.github$
 ^docs$
+^\.clang-format$
+^\.clang-format-ignore$

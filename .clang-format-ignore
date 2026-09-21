@@ -1,0 +1,4 @@
+src/RcppExports.cpp
+src/core/
+inst/include/nlohmann/
+inst/include/pcg_*.hpp

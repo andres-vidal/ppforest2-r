@@ -73,6 +73,14 @@ install: build
 
 # Refresh the vendored C++ core and golden files from a ppforest2-core checkout,
 # and record the ref in CORE_VERSION.
+FORMAT_SOURCES = src/main.cpp inst/include/ppforest2.h
+
+format:
+	@clang-format -i ${FORMAT_SOURCES}
+
+format-dry:
+	@clang-format --dry-run --Werror ${FORMAT_SOURCES}
+
 docs:
 	@Rscript -e "Rcpp::compileAttributes('.')"
 	@Rscript -e "pkgdown::build_site('.', preview = FALSE)"
@@ -89,4 +97,4 @@ vendor-core:
 vendor-deps:
 	@sh tools/vendor-deps.sh ${CORE}
 
-.PHONY: install-deps clean document build test check check-cran install vendor-core vendor-deps docs
+.PHONY: install-deps clean document build test check check-cran install vendor-core vendor-deps docs format format-dry
