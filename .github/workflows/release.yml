@@ -21,11 +21,11 @@ jobs:
       # makes the dependency explicit and auditable. Dependabot is configured
       # (`.github/dependabot.yml`) to open PRs when these SHAs move.
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
-      - uses: r-lib/actions/setup-r@465b7d8e732ca3921382b1674c59bada9cbf3399  # v2
-      - uses: r-lib/actions/setup-tinytex@465b7d8e732ca3921382b1674c59bada9cbf3399  # v2
+      - uses: r-lib/actions/setup-r@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05  # v2
+      - uses: r-lib/actions/setup-tinytex@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05  # v2
         env:
           TINYTEX_INSTALLER: ${{ runner.os == 'Windows' && 'TinyTeX' || '' }}
-      - uses: r-lib/actions/setup-r-dependencies@465b7d8e732ca3921382b1674c59bada9cbf3399  # v2
+      - uses: r-lib/actions/setup-r-dependencies@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05  # v2
         with:
           extra-packages: any::devtools
       - run: make check-cran
@@ -95,14 +95,14 @@ jobs:
           # so a released tarball can be traced back to a ppforest2-core commit.
           echo "" >> release_notes.md
           echo "Built against ppforest2-core \`$(cat CORE_VERSION)\`." >> release_notes.md
-      - uses: r-lib/actions/setup-r@465b7d8e732ca3921382b1674c59bada9cbf3399  # v2
-      - uses: r-lib/actions/setup-r-dependencies@465b7d8e732ca3921382b1674c59bada9cbf3399  # v2
+      - uses: r-lib/actions/setup-r@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05  # v2
+      - uses: r-lib/actions/setup-r-dependencies@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05  # v2
         with:
           extra-packages: any::devtools
       - name: Build source tarball
         run: make build
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228  # v3
+        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64  # v3
         with:
           body_path: release_notes.md
           generate_release_notes: false
