@@ -21,7 +21,12 @@ jobs:
       # makes the dependency explicit and auditable. Dependabot is configured
       # (`.github/dependabot.yml`) to open PRs when these SHAs move.
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+      # On macOS, CRAN's binaries rather than Posit Package Manager's: Posit's
+      # gower binary links against a libomp.dylib that the CRAN build of R does
+      # not ship, so gower, and with it tune, cannot be loaded.
       - uses: r-lib/actions/setup-r@465b7d8e732ca3921382b1674c59bada9cbf3399  # v2
+        with:
+          use-public-rspm: ${{ runner.os != 'macOS' }}
       - uses: r-lib/actions/setup-tinytex@465b7d8e732ca3921382b1674c59bada9cbf3399  # v2
         env:
           TINYTEX_INSTALLER: ${{ runner.os == 'Windows' && 'TinyTeX' || '' }}
