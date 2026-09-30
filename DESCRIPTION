@@ -30,6 +30,7 @@ LazyData: true
 RoxygenNote: 7.3.2
 Encoding: UTF-8
 Suggests:
+    generics,
     ggplot2,
     jsonlite,
     knitr,

@@ -64,7 +64,7 @@ describe("parsnip integration", {
       spec <- pp_rand_forest() |>
         set_engine("ppforest2") |>
         set_mode("classification")
-      expect_true("mtry_prop" %in% tunable(spec)$name)
+      expect_true("mtry_prop" %in% generics::tunable(spec)$name)
     })
   })
 
