@@ -41,6 +41,13 @@
   `hardware_concurrency()` may report 0, and a non-positive OpenMP
   thread count is undefined behavior.
 
+### Packaging and build
+
+- The vendored C++ core uses `Eigen::indexing::all` instead of
+  `Eigen::all`, which Eigen 5 no longer accepts as an index, so the
+  package builds with the upcoming RcppEigen release based on Eigen 5 as
+  well as with the current one based on Eigen 3.4.0.
+
 ## ppforest2 0.1.2
 
 CRAN release: 2026-07-21
