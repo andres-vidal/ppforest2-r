@@ -11,6 +11,10 @@
 - `pptr()` and `pprf()` no longer abort with the internal error `Grouping::init: partition must be rooted at row 0` when the response's class blocks are contiguous but ordered by decreasing factor level (for example a two-class factor whose first row is its second level, or the bundled `crab` dataset with default alphabetical levels). The classification path now sorts the response into ascending group-id order whenever it is not already, matching the regression path and the command-line tool.
 - The resolved thread count is clamped to at least 1 — `hardware_concurrency()` may report 0, and a non-positive OpenMP thread count is undefined behavior.
 
+## Packaging and build
+
+- The vendored C++ core uses `Eigen::indexing::all` instead of `Eigen::all`, which Eigen 5 no longer accepts as an index, so the package builds with the upcoming RcppEigen release based on Eigen 5 as well as with the current one based on Eigen 3.4.0.
+
 # ppforest2 0.1.2
 
 ## CRAN
