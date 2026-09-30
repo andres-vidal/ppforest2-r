@@ -74,8 +74,6 @@ check-cran: build
 install: build
 	@R CMD INSTALL ${TARBALL}
 
-# Refresh the vendored C++ core and golden files from a ppforest2-core checkout,
-# and record the ref in CORE_VERSION.
 FORMAT_SOURCES = src/main.cpp inst/include/ppforest2.h
 
 format:
@@ -88,6 +86,8 @@ docs:
 	@Rscript -e "Rcpp::compileAttributes('.')"
 	@Rscript -e "pkgdown::build_site('.', preview = FALSE)"
 
+# Refresh the vendored C++ core and golden files from a ppforest2-core checkout,
+# and record the ref in CORE_VERSION.
 vendor-core:
 	@if [ -z "${REF}" ]; then \
 		echo "Usage: make vendor-core CORE=../ppforest2-core REF=v0.1.4"; \
