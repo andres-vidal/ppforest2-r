@@ -41,6 +41,7 @@ build: clean
 
 test:
 	@Rscript -e "Rcpp::compileAttributes('.')"
+	@Rscript tools/check-suggests.R
 	@Rscript tools/run-tests.R
 	@make clean
 
@@ -61,10 +62,12 @@ define fail_on_warning
 endef
 
 check: build
+	@Rscript tools/check-suggests.R
 	@R CMD check ${TARBALL} || exit 1
 	$(fail_on_warning)
 
 check-cran: build
+	@Rscript tools/check-suggests.R
 	@R CMD check ${TARBALL} --as-cran || exit 1
 	$(fail_on_warning)
 
