@@ -41,7 +41,7 @@ build: clean
 
 test:
 	@Rscript -e "Rcpp::compileAttributes('.')"
-	@Rscript -e "devtools::load_all('.'); devtools::test('.')"
+	@Rscript tools/run-tests.R
 	@make clean
 
 # `R CMD check` exits 0 on WARNINGs (only ERRORs are non-zero), so a WARNING
