@@ -41,7 +41,8 @@ build: clean
 
 test:
 	@Rscript -e "Rcpp::compileAttributes('.')"
-	@Rscript -e "devtools::load_all('.'); devtools::test('.')"
+	@Rscript tools/check-suggests.R
+	@Rscript tools/run-tests.R
 	@make clean
 
 # `R CMD check` exits 0 on WARNINGs (only ERRORs are non-zero), so a WARNING
@@ -61,18 +62,18 @@ define fail_on_warning
 endef
 
 check: build
+	@Rscript tools/check-suggests.R
 	@R CMD check ${TARBALL} || exit 1
 	$(fail_on_warning)
 
 check-cran: build
+	@Rscript tools/check-suggests.R
 	@R CMD check ${TARBALL} --as-cran || exit 1
 	$(fail_on_warning)
 
 install: build
 	@R CMD INSTALL ${TARBALL}
 
-# Refresh the vendored C++ core and golden files from a ppforest2-core checkout,
-# and record the ref in CORE_VERSION.
 FORMAT_SOURCES = src/main.cpp inst/include/ppforest2.h
 
 format:
@@ -85,6 +86,8 @@ docs:
 	@Rscript -e "Rcpp::compileAttributes('.')"
 	@Rscript -e "pkgdown::build_site('.', preview = FALSE)"
 
+# Refresh the vendored C++ core and golden files from a ppforest2-core checkout,
+# and record the ref in CORE_VERSION.
 vendor-core:
 	@if [ -z "${REF}" ]; then \
 		echo "Usage: make vendor-core CORE=../ppforest2-core REF=v0.1.4"; \
