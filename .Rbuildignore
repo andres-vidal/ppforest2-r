@@ -13,3 +13,4 @@
 ^docs$
 ^\.clang-format$
 ^\.clang-format-ignore$
+^CLAUDE\.md$
