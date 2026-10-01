@@ -2,6 +2,8 @@
 
 ## ppforest2 0.1.3
 
+CRAN release: 2026-10-01
+
 ### New features
 
 - [`summary()`](https://rdrr.io/r/base/summary.html) on a classification
