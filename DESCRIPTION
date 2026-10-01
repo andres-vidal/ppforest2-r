@@ -27,6 +27,7 @@ LinkingTo: Rcpp, RcppEigen
 Depends: 
     R (>= 3.5.0)
 LazyData: true
+Roxygen: list(roclets = c("collate", "namespace", "rd", "srr::srr_stats_roclet"))
 RoxygenNote: 7.3.2
 Encoding: UTF-8
 Suggests:
