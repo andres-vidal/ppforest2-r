@@ -74,10 +74,18 @@ jobs:
       - uses: actions/download-artifact@v8
         with:
           name: tarball
+      # The valgrind container sets VALGRIND_OPTS with --leak-check=full, which
+      # counts "possibly lost" blocks as errors. libgomp's worker threads keep
+      # their thread-local storage until exit, which valgrind reports as
+      # possibly lost, so the workflow will always fail. We set
+      # --errors-for-leak-kinds=definite to prevent this.
       - name: R CMD check
         run: |
           FLAGS="--as-cran --no-manual --no-vignettes"
-          if [ -n "${{ matrix.valgrind }}" ]; then FLAGS="$FLAGS --use-valgrind"; fi
+          if [ -n "${{ matrix.valgrind }}" ]; then
+            FLAGS="$FLAGS --use-valgrind"
+            export VALGRIND_OPTS="${VALGRIND_OPTS:-} --errors-for-leak-kinds=definite"
+          fi
           R CMD check $FLAGS ppforest2_*.tar.gz
       # UBSAN and valgrind print their reports into the test and example output
       # without failing R CMD check, so the output is scanned for them here.
@@ -101,7 +109,7 @@ jobs:
         run: |
           cat ppforest2.Rcheck/00install.out 2>/dev/null || true
           cat ppforest2.Rcheck/00check.log 2>/dev/null || true
-          for f in ppforest2.Rcheck/tests/*.Rout*; do
+          for f in ppforest2.Rcheck/tests/*.Rout* ppforest2.Rcheck/ppforest2-Ex.Rout; do
             echo "===== $f ====="; cat "$f" 2>/dev/null || true
           done
 
