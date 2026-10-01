@@ -1,29 +1,27 @@
 ## Update
 
-This is an update (0.1.2) that fixes the check problem reported for the current
-CRAN version at
-<https://cran.r-project.org/web/checks/check_results_ppforest2.html>.
+This is an update (0.1.3). Its main purpose is to build with the upcoming
+RcppEigen release based on Eigen 5.
 
-The macOS/M1mac additional check flagged a `-Wdeprecated-declarations` warning:
-the newer libc++ (Apple clang 21, macOS 26 SDK) deprecates
-`std::char_traits<unsigned char>`, which the vendored nlohmann/json instantiates
-through the default template arguments of its binary output/stream adapters
-(`std::basic_string<std::uint8_t>` / `std::basic_ostream<std::uint8_t>`).
-ppforest2 does not use nlohmann's binary formats. The vendored `json.hpp` is now
-bracketed with a `_Pragma` guard that suppresses this deprecation; `_Pragma`
-(unlike `#pragma`) is not flagged by `R CMD check`'s pragma check.
+The vendored C++ core used `Eigen::all`, which Eigen 5 no longer accepts as an
+index. It now uses `Eigen::indexing::all`, which is available since Eigen 3.4.0.
+The change was contributed by Dirk Eddelbuettel, the RcppEigen maintainer. The
+package was checked against the current CRAN RcppEigen (0.3.4.0.2, Eigen 3.4.0)
+and against the RcppEigen 0.4.9.9.2 release candidate (Eigen 5.0.1).
+
+The update also fixes an internal error in `pptr()` and `pprf()` for some
+orderings of the response's classes, clamps the OpenMP thread count to at
+least 1, and includes minor `summary()` and plot changes. See NEWS.md.
 
 ## Test environments
 
-* local macOS (R release), R CMD check --as-cran
+* local macOS (R release), R CMD check --as-cran, with CRAN RcppEigen 0.3.4.0.2
+  and with the RcppEigen 0.4.9.9.2 release candidate
 * GitHub Actions: Ubuntu, macOS, and Windows (R release), R CMD check --as-cran
+* win-builder: R-devel and R-release
 * R-devel (Linux, r-hub ubuntu-next container), R CMD check --as-cran
 * AddressSanitizer + UndefinedBehaviorSanitizer, clang and gcc (r-hub containers)
 * valgrind (r-hub container)
-
-The package compiles a C++ core, so it was additionally checked under the
-sanitizer and valgrind toolchains; no memory or undefined-behaviour issues
-were reported.
 
 ## R CMD check results
 
@@ -41,7 +39,7 @@ correctly.)
   two non-functional ways: their `#pragma GCC/clang diagnostic ignored` lines
   are removed (so the library suppresses no compiler diagnostics), and
   `json.hpp` is bracketed with a `_Pragma` guard that silences the libc++
-  `char_traits<unsigned char>` deprecation described above. The headers are
+  `char_traits<unsigned char>` deprecation (the fix in 0.1.2). The headers are
   otherwise upstream. Eigen is obtained from RcppEigen via LinkingTo. No code is
   downloaded at build or install time; the package builds entirely from the
   sources in the tarball and does not require CMake.
