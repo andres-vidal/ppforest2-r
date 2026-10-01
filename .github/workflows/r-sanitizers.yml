@@ -9,7 +9,8 @@ name: 'Manual: R Sanitizers & R-devel'
 # (it needs pandoc/LaTeX for the vignettes/manual), then run `R CMD check` on
 # that tarball inside each instrumented container. The package is compiled with
 # the container's sanitizer toolchain during install, and its tests run under
-# the sanitizer/valgrind — which is where the C++ core gets exercised.
+# the sanitizer/valgrind — which is where the C++ core gets exercised. A job
+# fails if the test or example output contains a sanitizer or valgrind report.
 
 on:
   workflow_dispatch:
@@ -78,6 +79,23 @@ jobs:
           FLAGS="--as-cran --no-manual --no-vignettes"
           if [ -n "${{ matrix.valgrind }}" ]; then FLAGS="$FLAGS --use-valgrind"; fi
           R CMD check $FLAGS ppforest2_*.tar.gz
+      # UBSAN and valgrind print their reports into the test and example output
+      # without failing R CMD check, so the output is scanned for them here.
+      # ASAN aborts the process on a report, which already fails the check.
+      - name: Fail on sanitizer and valgrind reports
+        shell: bash
+        run: |
+          outputs=(ppforest2.Rcheck/tests/*.Rout ppforest2.Rcheck/ppforest2-Ex.Rout)
+          for f in "${outputs[@]}"; do
+            if [ ! -f "$f" ]; then
+              echo "::error::Expected output file $f is missing."
+              exit 1
+            fi
+          done
+          if grep -nE -A20 'runtime error:|ERROR: AddressSanitizer|ERROR SUMMARY: [1-9]' "${outputs[@]}"; then
+            echo "::error::Sanitizer or valgrind reports found; see the output above."
+            exit 1
+          fi
       - name: Show logs on failure
         if: failure()
         run: |
