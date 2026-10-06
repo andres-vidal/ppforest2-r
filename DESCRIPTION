@@ -5,7 +5,11 @@ Version: 0.1.3
 Date: 2026-09-18
 Authors@R: c(
     person("Andrés", "Vidal", email = "andres@andresvidal.dev", role = c("aut", "cre", "cph")),
-    person("Natalia", "da Silva", role = "aut"))
+    person("Natalia", "da Silva", role = "aut"),
+    person("Niels", "Lohmann", role = "cph",
+           comment = "Author of the bundled nlohmann/json library"),
+    person("Melissa", "O'Neill", role = "cph",
+           comment = "Author of the bundled PCG random number generator"))
 Description: Builds decision trees by splitting on linear combinations of
     randomly chosen variables. Projection pursuit is used to choose a
     projection of the variables that best separates the groups. Using linear
