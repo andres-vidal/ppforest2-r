@@ -252,7 +252,7 @@ permuted_importance.pprf <- function(model) {
   # by unifying `model$y` with the continuous response in `validate_data()`.
   .cached_or_compute(model, "permuted_importance", function() {
     .require_training_data(model, c("x", "y"))
-    ppforest2_vi_permuted_forest(model, model$x, model$y, model$seed)
+    stats::setNames(ppforest2_vi_permuted_forest(model, model$x, model$y, model$seed), colnames(model$x))
   })
 }
 
@@ -291,7 +291,7 @@ weighted_importance.pprf <- function(model) {
   # mode-correct for both classification and regression.
   .cached_or_compute(model, "weighted_importance", function() {
     .require_training_data(model, c("x", "y"))
-    ppforest2_vi_weighted_forest(model, model$x, model$y, model$vi$scale)
+    stats::setNames(ppforest2_vi_weighted_forest(model, model$x, model$y, model$vi$scale), colnames(model$x))
   })
 }
 
@@ -341,6 +341,8 @@ projection_importance.ppmodel <- function(model) {
 #' @param x A \code{pptr} or \code{pprf} model.
 #' @param ... Unused.
 #' @return The formula the model was trained with, or `NULL` for matrix-interface fits.
+#' @srrstats {RE4.4} `formula()` returns the model formula, or `NULL` for the
+#'   matrix interface.
 #' @export
 formula.ppmodel <- function(x, ...) {
   x$formula
@@ -357,6 +359,7 @@ formula.ppmodel <- function(x, ...) {
 #' @param ... Unused.
 #' @return Integer scalar. Returns \code{NA_integer_} for models loaded from
 #'   JSON without their original training data.
+#' @srrstats {RE4.5} `nobs()` returns the number of training observations.
 #' @export
 nobs.ppmodel <- function(object, ...) {
   if (is.null(object$x)) return(NA_integer_)
@@ -375,6 +378,8 @@ nobs.ppmodel <- function(object, ...) {
 #' @return A factor (classification) or numeric vector (regression), length
 #'   equal to the number of training observations.
 #' @seealso \code{\link{residuals.ppmodel}}, \code{\link{oob_predictions}}
+#' @srrstats {RE4.9} `fitted()` returns the model's predictions for its training
+#'   data, in the order of the training rows.
 #' @export
 fitted.ppmodel <- function(object, ...) {
   .require_training_data(object, "x")
@@ -387,14 +392,21 @@ fitted.ppmodel <- function(object, ...) {
 
 #' Residuals from a regression ppforest2 model.
 #'
-#' Returns \code{y - fitted(model)}. Only defined for regression models —
-#' classification residuals have no canonical scalar form, so this method
-#' errors on classification models rather than inventing a convention.
+#' Returns \code{y - fitted(model)}: the training response minus the model's
+#' predictions for its own training data, in the order of the training rows.
+#' These are in-sample residuals, so for a forest they are smaller than its
+#' errors on new data; compare \code{oob_predictions(model)} with the response
+#' for an out-of-bag view. Only defined for regression models: classification
+#' residuals have no canonical scalar form, so this method errors on
+#' classification models.
 #'
 #' @param object A \code{pprf} or \code{pptr} regression model.
 #' @param ... Unused.
 #' @return A numeric vector of length \code{nobs(object)}.
 #' @seealso \code{\link{fitted.ppmodel}}
+#' @srrstats {RE4.10} `residuals()` returns the training response minus the
+#'   fitted values, and its documentation explains that they are in-sample and
+#'   how to obtain out-of-bag errors instead.
 #' @export
 residuals.ppmodel <- function(object, ...) {
   if (!identical(object$mode, "regression")) {

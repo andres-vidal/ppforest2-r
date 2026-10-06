@@ -212,7 +212,10 @@ compare_vote_proportions <- function(model, golden, data) {
 }
 
 compare_vi <- function(model, golden, key, r_field) {
-  expected <- as.numeric(as_vec(golden$variable_importance[[key]]))
+  expected <- stats::setNames(
+    as.numeric(as_vec(golden$variable_importance[[key]])),
+    as_vec(golden$meta$feature_names)
+  )
   # The eager fields on model$vi are `scale` and `projections`; weighted and
   # permuted importances are lazy accessors.
   actual <- switch(r_field,

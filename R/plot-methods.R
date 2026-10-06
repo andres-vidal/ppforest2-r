@@ -36,6 +36,11 @@
 #'   plot(model, type = "boundaries")    # decision boundaries
 #' }
 #' }
+#' @srrstats {RE6.0, RE6.1} Models have S3 `plot()` methods.
+#' @srrstats {RE6.2} The default plot of a tree includes its decision boundaries,
+#'   which show the fitted value over the predictor space; a tree has no
+#'   confidence intervals to add. The default plot of a forest shows variable
+#'   importance, since a forest has no single partition of the predictor space.
 #' @export
 plot.pptr <- function(x, type = NULL, metric = NULL, node = 1L, ...) {
   check_ggplot2()

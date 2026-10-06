@@ -15,9 +15,13 @@
 A numeric vector of length \code{nobs(object)}.
 }
 \description{
-Returns \code{y - fitted(model)}. Only defined for regression models —
-classification residuals have no canonical scalar form, so this method
-errors on classification models rather than inventing a convention.
+Returns \code{y - fitted(model)}: the training response minus the model's
+predictions for its own training data, in the order of the training rows.
+These are in-sample residuals, so for a forest they are smaller than its
+errors on new data; compare \code{oob_predictions(model)} with the response
+for an out-of-bag view. Only defined for regression models: classification
+residuals have no canonical scalar form, so this method errors on
+classification models.
 }
 \seealso{
 \code{\link{fitted.ppmodel}}

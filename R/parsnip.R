@@ -99,6 +99,8 @@ update.pp_rand_forest <- function(object, parameters = NULL, trees = NULL, mtry 
 #'   predict(fit, iris)
 #' }
 #' }
+#' @srrstats {RE4.1} `pp_tree()` and `pp_rand_forest()` create a model
+#'   specification without fitting it.
 #' @export
 pp_tree <- function(mode = "classification", penalty = NULL) {
   if (!requireNamespace("parsnip", quietly = TRUE)) {

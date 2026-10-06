@@ -57,9 +57,18 @@ grouping always yields a 2-group partition, so no binarization is needed).}
 \code{\link{leaf_mean_response}()} for regression.}
 }
 \value{
-A \code{pptr} model. Its S3 class vector is
+A \code{pptr} model: a list with S3 class
   \code{c("pptr_classification", "pptr", "ppmodel")} or
-  \code{c("pptr_regression", "pptr", "ppmodel")} depending on the mode.
+  \code{c("pptr_regression", "pptr", "ppmodel")}, depending on the mode.
+  Its elements include \code{root} (the fitted tree); \code{x} and
+  \code{y} (the training features and response, in the order given, with
+  \code{y} holding group indices for classification); \code{groups} (the
+  class labels); \code{mode}; \code{formula} (\code{NULL} for the matrix
+  interface); \code{training_spec} (the strategies used); \code{seed};
+  \code{degenerate} (\code{TRUE} when some node could not be split, see
+  Input data); and \code{vi} (variable importance). Where an accessor
+  exists, such as \code{fitted()}, \code{residuals()}, \code{nobs()} or
+  \code{formula()}, prefer it to the element.
 }
 \description{
 This function trains a Projection-Pursuit oblique decision tree using either a formula and data frame interface or a matrix-based interface. When using the formula interface, specify the model formula and the data frame containing the variables. For the matrix-based interface, provide matrices for the features and labels directly.
@@ -68,6 +77,40 @@ If \code{lambda = 0}, the model is trained using Linear Discriminant Analysis (L
 \details{
 Mode is taken from the \code{mode} argument when explicit, and otherwise auto-detected from `y` (factor/character → classification, numeric → regression). Pass \code{mode = "classification"} to force classification on integer labels (e.g. binary 0/1), or \code{mode = "regression"} to assert intent on numeric responses.
 }
+\section{Input data}{
+
+With the formula interface, the feature matrix is built with
+\code{model.matrix()} from the formula without an intercept: numeric
+columns are used as they are, and each factor predictor becomes indicator
+columns, one per level. The response is taken with \code{model.response()}.
+With the matrix interface, \code{x} is converted with \code{as.matrix()}.
+
+Features must be numeric. Factor predictors are accepted only through the
+formula interface; character and list columns are an error, and so are
+missing or infinite values in the features or the response. Rows with
+missing values are not dropped: remove or impute them before training.
+
+A classification response that is not a factor is converted with
+\code{factor()}. To choose the groups and their order, pass \code{y} as a
+factor with those levels; to treat integer labels as groups, use
+\code{mode = "classification"}.
+
+The method makes no distributional assumptions. Each split looks for a
+linear combination of the features that separates the groups, so groups
+that differ only in non-linear ways need more splits. Results do not depend
+on the units of the features: rescaling or shifting a feature leaves the
+splits and predictions unchanged. Perfectly collinear features, or more
+features than observations at a node, make the LDA index
+(\code{lambda = 0}) singular; the node then cannot be split, it becomes a
+degenerate leaf, and a warning is issued. The PDA index (\code{lambda > 0})
+is not affected. A warning is also issued for features that are perfectly
+collinear with each other or with a regression response.
+
+The row and column names of the training data are kept in the model's
+\code{x}, and the column names in its variable importance. Predictions are
+returned in the order of the rows of \code{new_data}, without row names.
+}
+
 \examples{
 
 # Example 1: formula interface with the `iris` dataset

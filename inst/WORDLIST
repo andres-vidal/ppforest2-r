@@ -59,6 +59,7 @@ binarization
 binarizer
 brickface
 cDNA
+collinear
 colour
 compat
 cultivares
@@ -105,6 +106,7 @@ recomputation
 regularisation
 representable
 reproducibility
+rescaling
 sd
 serialisation
 signalled
