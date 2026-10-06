@@ -1,3 +1,9 @@
+# ppforest2 (development version)
+
+## Packaging and build
+
+- `DESCRIPTION` lists the authors of the bundled nlohmann/json and PCG code as copyright holders, and `inst/COPYRIGHTS` gives their copyright and license.
+
 # ppforest2 0.1.3
 
 ## New features
