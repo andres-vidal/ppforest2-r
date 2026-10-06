@@ -14,6 +14,8 @@
 #' @srrstats {G1.6} `benchmarks/compare-ppforest.R` times forest training in
 #'   ppforest2 and `PPforest` on simulated data, which is the basis of the
 #'   performance claim in the README.
+#' @srrstats {RE5.0} `benchmarks/scaling.R` measures how training time grows with
+#'   the number of observations and of variables.
 #' @noRd
 NULL
 
@@ -35,5 +37,22 @@ NULL
 #'   against. Correctness is tested against `PPforest` instead (G5.4b).
 #' @srrstatsNA {G5.10, G5.11, G5.11a, G5.12} The package has no extended tests:
 #'   every test runs in the regular suite on data bundled with the package.
+#' @srrstatsNA {RE2.1, RE2.2} Missing values in the features or the response
+#'   are an error (G2.14a), with separate messages for `NA`/`NaN` and infinite
+#'   values. There is no option to fit with missing values, which users remove
+#'   or impute before training.
+#' @srrstatsNA {RE2.3} Projection pursuit trees are invariant to centring and
+#'   rescaling each variable (tested under RE1.4), so the package offers no
+#'   centring or offset options.
+#' @srrstatsNA {RE4.2, RE4.3, RE4.6} A tree or forest has no regression
+#'   coefficients, so there are no coefficients, confidence intervals on them,
+#'   or variance-covariance matrix to return. Each split's projector is stored
+#'   in the tree, and its use is summarised by variable importance.
+#' @srrstatsNA {RE4.12} The package applies no transformations to the input data
+#'   that would need an inverse.
+#' @srrstatsNA {RE4.14, RE4.15, RE6.3, RE7.4} The models do not forecast, so there
+#'   are no forecast horizons or forecast errors.
+#' @srrstatsNA {RE4.16} The models do not fit distinct responses for categorical
+#'   groups of observations.
 #' @noRd
 NULL

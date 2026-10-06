@@ -32,9 +32,50 @@ NULL
 #' @param leaf A leaf strategy object. Default depends on mode:
 #'   \code{\link{leaf_majority_vote}()} for classification, and
 #'   \code{\link{leaf_mean_response}()} for regression.
-#' @return A \code{pptr} model. Its S3 class vector is
+#' @section Input data:
+#' With the formula interface, the feature matrix is built with
+#' \code{model.matrix()} from the formula without an intercept: numeric
+#' columns are used as they are, and each factor predictor becomes indicator
+#' columns, one per level. The response is taken with \code{model.response()}.
+#' With the matrix interface, \code{x} is converted with \code{as.matrix()}.
+#'
+#' Features must be numeric. Factor predictors are accepted only through the
+#' formula interface; character and list columns are an error, and so are
+#' missing or infinite values in the features or the response. Rows with
+#' missing values are not dropped: remove or impute them before training.
+#'
+#' A classification response that is not a factor is converted with
+#' \code{factor()}. To choose the groups and their order, pass \code{y} as a
+#' factor with those levels; to treat integer labels as groups, use
+#' \code{mode = "classification"}.
+#'
+#' The method makes no distributional assumptions. Each split looks for a
+#' linear combination of the features that separates the groups, so groups
+#' that differ only in non-linear ways need more splits. Results do not depend
+#' on the units of the features: rescaling or shifting a feature leaves the
+#' splits and predictions unchanged. Perfectly collinear features, or more
+#' features than observations at a node, make the LDA index
+#' (\code{lambda = 0}) singular; the node then cannot be split, it becomes a
+#' degenerate leaf, and a warning is issued. The PDA index (\code{lambda > 0})
+#' is not affected. A warning is also issued for features that are perfectly
+#' collinear with each other or with a regression response.
+#'
+#' The row and column names of the training data are kept in the model's
+#' \code{x}, and the column names in its variable importance. Predictions are
+#' returned in the order of the rows of \code{new_data}, without row names.
+#'
+#' @return A \code{pptr} model: a list with S3 class
 #'   \code{c("pptr_classification", "pptr", "ppmodel")} or
-#'   \code{c("pptr_regression", "pptr", "ppmodel")} depending on the mode.
+#'   \code{c("pptr_regression", "pptr", "ppmodel")}, depending on the mode.
+#'   Its elements include \code{root} (the fitted tree); \code{x} and
+#'   \code{y} (the training features and response, in the order given, with
+#'   \code{y} holding group indices for classification); \code{groups} (the
+#'   class labels); \code{mode}; \code{formula} (\code{NULL} for the matrix
+#'   interface); \code{training_spec} (the strategies used); \code{seed};
+#'   \code{degenerate} (\code{TRUE} when some node could not be split, see
+#'   Input data); and \code{vi} (variable importance). Where an accessor
+#'   exists, such as \code{fitted()}, \code{residuals()}, \code{nobs()} or
+#'   \code{formula()}, prefer it to the element.
 #' @seealso \code{\link{predict.pptr_classification}}, \code{\link{predict.pptr_regression}}, \code{\link{formula.ppmodel}}, \code{\link{print.pptr}}, \code{\link{save_json}}, \code{\link{load_json}}, \code{\link{pp_tree}} for parsnip integration
 #' @references
 #' Lee, Y. D., Cook, D., Park, J. and Lee, E.-K. (2013). PPtree: Projection pursuit classification tree. \emph{Electronic Journal of Statistics}, 7. \doi{10.1214/13-EJS810}
@@ -42,6 +83,23 @@ NULL
 #' @srrstats {G1.0} The primary references for the method are listed under
 #'   References and in `DESCRIPTION`.
 #' @srrstats {G1.4} Every exported function is documented with roxygen2.
+#' @srrstats {RE1.0} Models can be specified with a formula.
+#' @srrstats {RE1.1, RE1.2, RE1.3a, RE1.4, RE2.0} The "Input data" section
+#'   documents how the formula becomes a feature matrix, the accepted and
+#'   rejected predictor types, the transformations applied and how to avoid
+#'   them, the assumptions and the effect of violating them, and that row names
+#'   are not carried into predictions.
+#' @srrstats {RE1.3} The row and column names of the training data are kept in
+#'   `model$x`, and the column names in the variable importance vectors.
+#' @srrstats {RE3.0, RE3.1} Nodes that projection pursuit cannot split, the
+#'   analogue of a failure to converge, produce a warning that can be
+#'   suppressed, and the model records them in `degenerate`.
+#' @srrstats {RE3.2, RE3.3} The stopping rules, which decide when a node stops
+#'   splitting, have documented defaults and are set with the `stop` argument;
+#'   `max_retries` in `pprf()` sets how often a degenerate tree is retrained.
+#' @srrstats {RE4.0, RE4.7, RE4.8, RE4.13} The model object has its own S3
+#'   classes and holds the training features and response, their metadata (the
+#'   group labels and feature names) and the degenerate-node indicator.
 #' @srrstats {G2.4a} `seed` must be integer-valued and is converted with
 #'   `as.integer()` before reaching the C++ core.
 #' @examples
@@ -131,7 +189,7 @@ pptr <- function(
 
   model$vi <- list(
     scale       = scale,
-    projections = ppforest2_vi_projections_tree(model, ncol(x), scale)
+    projections = stats::setNames(ppforest2_vi_projections_tree(model, ncol(x), scale), colnames(x))
   )
 
   model$.cache <- .new_cache()
@@ -217,6 +275,7 @@ predict.pptr_regression <- function(object, new_data = NULL, type = NULL, ...) {
 #' @return Invisibly returns the input \code{pptr} model \code{x} (unchanged).
 #'   Called for its side effect of printing the tree structure -- the oblique
 #'   split rules and leaf predictions -- to the console.
+#' @srrstats {RE4.17} `print()` shows the training specification and the tree.
 #' @export
 print.pptr <- function(x, ...) {
   cat("\n")

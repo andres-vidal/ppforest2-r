@@ -38,9 +38,15 @@ NULL
 #' @param leaf A leaf strategy object. Default depends on mode:
 #'   \code{\link{leaf_majority_vote}()} for classification, and
 #'   \code{\link{leaf_mean_response}()} for regression.
-#' @return A \code{pprf} model. Its S3 class vector is
+#' @inheritSection pptr Input data
+#' @return A \code{pprf} model: a list with S3 class
 #'   \code{c("pprf_classification", "pprf", "ppmodel")} or
-#'   \code{c("pprf_regression", "pprf", "ppmodel")} depending on the mode.
+#'   \code{c("pprf_regression", "pprf", "ppmodel")}, depending on the mode.
+#'   It has the same elements as a \code{\link{pptr}} model, with
+#'   \code{trees} in place of \code{root}: the bagged trees, each with the
+#'   0-based row positions of its bootstrap sample in \code{sample_indices}.
+#'   \code{degenerate} is \code{TRUE} when some tree has a node that could not
+#'   be split.
 #' @seealso \code{\link{predict.pprf_classification}}, \code{\link{predict.pprf_regression}}, \code{\link{formula.ppmodel}}, \code{\link{oob_error}}, \code{\link{save_json}}, \code{\link{load_json}}, \code{\link{pp_rand_forest}} for parsnip integration, \code{vignette("introduction")} for a tutorial
 #' @references
 #' Lee, Y. D., Cook, D., Park, J. and Lee, E.-K. (2013). PPtree: Projection pursuit classification tree. \emph{Electronic Journal of Statistics}, 7. \doi{10.1214/13-EJS810}
@@ -194,7 +200,7 @@ pprf <- function(
   scale <- feature_scale(x)
   model$vi <- list(
     scale       = scale,
-    projections = ppforest2_vi_projections_forest(model, ncol(x), scale)
+    projections = stats::setNames(ppforest2_vi_projections_forest(model, ncol(x), scale), colnames(x))
   )
 
   # Lazy-compute cache for OOB metrics and permuted/weighted importance.
@@ -339,6 +345,10 @@ summary.ppmodel <- function(object, ...) {
 #'   the training specification, data summary, and variable-importance table
 #'   (plus, for classification, the training/OOB confusion matrices) -- to the
 #'   console.
+#' @srrstats {RE4.11, RE4.18} `summary()` reports the training and out-of-bag
+#'   error rates and confusion matrices for classification, MSE, MAE and R^2 for
+#'   regression, and variable importance. The out-of-bag statistics, which are
+#'   expensive, are only computed here or through their accessors.
 #' @export
 summary.pprf <- function(object, ...) {
   model <- object

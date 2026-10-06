@@ -329,6 +329,52 @@ check_no_list_columns <- function(data) {
   }
 }
 
+#' Warn about perfectly collinear features, and about features perfectly
+#' collinear with a regression response.
+#'
+#' Collinear features make the within-group scatter matrix singular, so the
+#' LDA index (`lambda = 0`) cannot separate the groups at nodes where they
+#' remain collinear. The PDA index (`lambda > 0`) keeps the diagonal of that
+#' matrix and is not affected. The rank is only checked when there are more
+#' observations than features, since with fewer the features are always
+#' linearly dependent.
+#'
+#' @param x Numeric feature matrix.
+#' @param y Numeric regression response, or `NULL` for classification.
+#' @srrstats {RE2.4, RE2.4a} Perfect collinearity among the features is
+#'   detected from the rank of the feature matrix and reported with a warning.
+#' @srrstats {RE2.4b} A feature perfectly correlated with a regression response
+#'   is reported with a warning that names it.
+#' @noRd
+check_collinearity <- function(x, y = NULL) {
+  rank <- if (nrow(x) > ncol(x) && ncol(x) > 1L) qr(x)$rank else ncol(x)
+  if (rank < ncol(x)) {
+    warning(
+      "Some features are perfectly collinear (the feature matrix has rank ",
+      rank, " with ", ncol(x), " columns). With `lambda = 0` (LDA), ",
+      "nodes where they remain collinear cannot be split; `lambda > 0` (PDA) ",
+      "is not affected.",
+      call. = FALSE
+    )
+  }
+
+  if (!is.null(y) && nrow(x) > 2L && stats::sd(y) > 0) {
+    varying <- apply(x, 2, stats::sd) > 0
+    correlation <- rep(0, ncol(x))
+    correlation[varying] <- abs(stats::cor(x[, varying, drop = FALSE], y))
+    collinear <- correlation > 1 - sqrt(.Machine$double.eps)
+    if (any(collinear)) {
+      names <- colnames(x)
+      if (is.null(names)) names <- paste0("column ", seq_len(ncol(x)))
+      warning(
+        "Features perfectly collinear with the response: ",
+        paste0("`", names[collinear], "`", collapse = ", "), ".",
+        call. = FALSE
+      )
+    }
+  }
+}
+
 #' Validate the training data and convert it to a feature matrix and response.
 #'
 #' Accepts the formula interface (`formula` and `data`) or the matrix
@@ -444,6 +490,8 @@ resolve_model_data <- function(formula, data, x, y, mode = NULL) {
   if (is_regression && !all(is.finite(y))) {
     stop("`y` must contain only finite values for regression (no Inf / -Inf).")
   }
+
+  check_collinearity(x, if (is_regression) as.numeric(y) else NULL)
 
   if (is_regression) {
     return(
