@@ -1,34 +1,39 @@
-# Null-coalescing helper. Package-private; used from json.R, stop-strategy.R,
-# and anywhere else that wants rlang's `%||%` without depending on rlang.
+#' Return `a`, or `b` when `a` is `NULL`.
+#'
+#' Package-private, so the package does not depend on rlang for it.
+#' @srrstats {G1.4a} Internal functions are documented in roxygen2 blocks that
+#'   end in `@noRd`.
+#' @noRd
 `%||%` <- function(a, b) if (is.null(a)) b else a
 
 
-# Resolve strategy objects vs shortcut params into strategy objects.
-#
-# When shortcut params are used (lambda, n_vars, p_vars), builds the
-# corresponding strategy objects. When explicit strategy objects are
-# provided, validates and forwards them. Errors if both APIs are mixed.
-#
-# When n_features is provided, p_vars is resolved to n_vars and the
-# upper bound (n_vars <= n_features) is validated for uniform variable selection.
-#
-# @param pp A pp_strategy object or NULL.
-# @param lambda Shortcut for PDA lambda (caller must pass missing() result).
-# @param lambda_missing TRUE if lambda was not explicitly passed by the user.
-# @param vars A vars_strategy object or NULL.
-# @param n_vars Shortcut for number of variables.
-# @param n_vars_missing TRUE if n_vars was not explicitly passed by the user.
-# @param p_vars Shortcut for proportion of variables.
-# @param p_vars_missing TRUE if p_vars was not explicitly passed by the user.
-# @param cutpoint A cutpoint_strategy object or NULL.
-# @param stop A stop_strategy object or NULL.
-# @param binarize A binarize_strategy object or NULL.
-# @param grouping A grouping_strategy object or NULL.
-# @param leaf A leaf_strategy object or NULL.
-# @param default_vars The default variable selection strategy when none is specified.
-# @param n_features Number of features, used to resolve p_vars and validate
-#   n_vars upper bound. NULL if not yet known.
-# @return A list with resolved strategy objects.
+#' Resolve strategy objects vs shortcut params into strategy objects.
+#'
+#' When shortcut params are used (lambda, n_vars, p_vars), builds the
+#' corresponding strategy objects. When explicit strategy objects are
+#' provided, validates and forwards them. Errors if both APIs are mixed.
+#'
+#' When n_features is provided, p_vars is resolved to n_vars and the
+#' upper bound (n_vars <= n_features) is validated for uniform variable selection.
+#'
+#' @param pp A pp_strategy object or NULL.
+#' @param lambda Shortcut for PDA lambda (caller must pass missing() result).
+#' @param lambda_missing TRUE if lambda was not explicitly passed by the user.
+#' @param vars A vars_strategy object or NULL.
+#' @param n_vars Shortcut for number of variables.
+#' @param n_vars_missing TRUE if n_vars was not explicitly passed by the user.
+#' @param p_vars Shortcut for proportion of variables.
+#' @param p_vars_missing TRUE if p_vars was not explicitly passed by the user.
+#' @param cutpoint A cutpoint_strategy object or NULL.
+#' @param stop A stop_strategy object or NULL.
+#' @param binarize A binarize_strategy object or NULL.
+#' @param grouping A grouping_strategy object or NULL.
+#' @param leaf A leaf_strategy object or NULL.
+#' @param default_vars The default variable selection strategy when none is specified.
+#' @param n_features Number of features, used to resolve p_vars and validate
+#'   n_vars upper bound. NULL if not yet known.
+#' @return A list with resolved strategy objects.
+#' @noRd
 resolve_strategies <- function(
   pp,
   lambda,
@@ -119,6 +124,8 @@ resolve_strategies <- function(
     leaf = leaf)
 }
 
+#' Print the strategies of a training specification, with their parameters.
+#' @noRd
 print_training_spec <- function(spec) {
   section_labels <- c(
     pp = "pp method", vars = "vars method", cutpoint = "cutpoint method",
@@ -139,21 +146,25 @@ print_training_spec <- function(spec) {
   cat("\n")
 }
 
-# A rate of `NA` means there was nothing to compute it from (an empty matrix,
-# or a class with no observations). The CLI renders that case as "-" too.
+#' Format an error rate as a percentage.
+#'
+#' A rate of `NA` means there was nothing to compute it from (an empty matrix,
+#' or a class with no observations); it is printed as "-", as the CLI does.
+#' @noRd
 format_error_rate <- function(rate, digits) {
   if (is.na(rate)) "-" else sprintf(paste0("%.", digits, "f%%"), rate * 100)
 }
 
-# Classification metrics reporting mirrors the C++ presentation layer
-# (`print_metrics_block` in `io/Presentation.cpp`): the overall error rate on
-# its own line, then the confusion matrix carrying a per-class error column.
-# The quantities, their order, and their precision match, so an R summary and
-# a CLI summary of the same model read the same. Changing one side means
-# changing the other.
-#
-# `label` prefixes both headings ("Training", "OOB"); an empty label yields
-# the bare "Error:" / "Confusion Matrix:" headings.
+#' Classification metrics reporting mirrors the C++ presentation layer
+#' (`print_metrics_block` in `io/Presentation.cpp`): the overall error rate on
+#' its own line, then the confusion matrix carrying a per-class error column.
+#' The quantities, their order, and their precision match, so an R summary and
+#' a CLI summary of the same model read the same. Changing one side means
+#' changing the other.
+#'
+#' `label` prefixes both headings ("Training", "OOB"); an empty label yields
+#' the bare "Error:" / "Confusion Matrix:" headings.
+#' @noRd
 print_metrics_block <- function(preds, actual, label) {
   counts <- unclass(table(Actual = actual, Predicted = preds))
   titled <- function(heading) if (nzchar(label)) paste(label, heading) else heading
@@ -177,12 +188,18 @@ print_metrics_block <- function(preds, actual, label) {
   print(display, quote = FALSE, right = TRUE)
 }
 
+#' Print the error rate and confusion matrix of class predictions against the training labels.
+#' @noRd
 print_confusion_matrix <- function(raw_preds, model, label = "Training") {
   preds <- factor(model$groups[raw_preds], levels = model$groups)
   actual <- factor(model$groups[model$y], levels = model$groups)
   print_metrics_block(preds, actual, label)
 }
 
+#' Print the OOB error rate and confusion matrix of a forest.
+#'
+#' Observations without an OOB tree have no OOB prediction and are left out.
+#' @noRd
 print_oob_confusion_matrix <- function(model) {
   # `oob_predictions()` is the lazy accessor; returns a factor with `NA` for
   # observations with no OOB tree. Those rows carry no OOB information, so
@@ -194,6 +211,17 @@ print_oob_confusion_matrix <- function(model) {
   print_metrics_block(preds, actual, "OOB")
 }
 
+#' Convert the `new_data` passed to `predict()` to a checked feature matrix.
+#'
+#' A data frame goes through the model's formula, without its response, so it
+#' does not need the response column. A matrix is used as is, which is what
+#' `fitted()` relies on to predict on `model$x`.
+#'
+#' @srrstats {G2.13, G2.15} Missing values in `new_data` are an error, and the
+#'   formula interface uses `na.action = na.pass` so that rows with missing
+#'   values are rejected rather than dropped before the check.
+#' @srrstats {G2.16} Infinite values in `new_data` are an error.
+#' @noRd
 process_predict_arguments <- function(object, new_data, ...) {
   if (is.null(new_data)) {
     new_data <- list(...)[[1]]
@@ -213,10 +241,17 @@ process_predict_arguments <- function(object, new_data, ...) {
   x
 }
 
-# Per-feature standard deviations used to scale variable importance. A
-# constant column has a standard deviation of zero up to rounding error, which
-# is detected relative to the column's magnitude; it gets a scale of 1 so its
-# coefficient is reported unscaled.
+#' Per-feature standard deviations used to scale variable importance.
+#'
+#' @srrstats {G3.0} A constant column has a standard deviation of zero up to
+#'   rounding error, so it is detected with a tolerance relative to the column's
+#'   magnitude rather than by comparing with zero; it gets a scale of 1 so its
+#'   coefficient is reported unscaled. `summary()` compares the scales with 1
+#'   using `all.equal()`. The other floating-point equality tests in the package
+#'   are exact by construction: `pp_pda()` labels a user-supplied `lambda` of
+#'   exactly 0 as LDA, and the tree structure plot tests whether the range of a
+#'   node's projected values, the difference of their maximum and minimum, is zero.
+#' @noRd
 feature_scale <- function(x) {
   scale <- apply(x, 2, stats::sd)
   tolerance <- sqrt(.Machine$double.eps) * apply(abs(x), 2, max)
@@ -224,17 +259,26 @@ feature_scale <- function(x) {
   scale
 }
 
-# `type` in predict() is a single, case-sensitive string; the methods check
-# which values they support.
+#' Check that the `type` argument of `predict()` is a single string.
+#'
+#' The methods then check which values they support.
+#' @srrstats {G2.2, G2.3, G2.3a} `type` must be a single character string, and
+#'   each method accepts only its documented values and errors on any other.
+#' @srrstats {G2.3b} `type` and `mode` are case-sensitive, as documented in
+#'   `pptr()`, `pprf()` and the `predict()` methods.
+#' @noRd
 check_prediction_type <- function(type) {
   if (!is.character(type) || length(type) != 1L || is.na(type)) {
     stop("`type` must be a single character string.", call. = FALSE)
   }
 }
 
-# Number of features the model was trained on: the columns of the stored
-# training data, or the length of the variable-importance scale vector for a
-# model loaded from JSON without training data. NA when neither is available.
+#' Number of features a model was trained on.
+#'
+#' The columns of the stored training data, or the length of the importance
+#' scale vector for a model loaded from JSON without its training data. `NA`
+#' when neither is available.
+#' @noRd
 n_model_features <- function(object) {
   if (!is.null(object$x)) {
     return(ncol(object$x))
@@ -245,8 +289,12 @@ n_model_features <- function(object) {
   NA_integer_
 }
 
-# Checks the feature matrix passed to predict(): numeric, the same number of
-# columns the model was trained on, and only finite values.
+#' Check the feature matrix passed to `predict()`.
+#'
+#' @srrstats {G2.0} `new_data` must have as many columns as the model has
+#'   features.
+#' @srrstats {G2.1} `new_data` must be numeric.
+#' @noRd
 check_new_data <- function(x, n_features) {
   if (!is.numeric(x)) {
     stop("All columns in `new_data` must be numeric.")
@@ -265,8 +313,11 @@ check_new_data <- function(x, n_features) {
   }
 }
 
-# List columns cannot become a numeric feature matrix, so they are rejected by
-# name before any conversion.
+#' Reject list columns by name before any conversion.
+#'
+#' @srrstats {G2.12} List columns cannot become a numeric feature matrix, so
+#'   they are rejected with an error that names them, in both interfaces.
+#' @noRd
 check_no_list_columns <- function(data) {
   list_columns <- names(data)[vapply(data, is.list, logical(1))]
   if (length(list_columns) > 0L) {
@@ -278,6 +329,37 @@ check_no_list_columns <- function(data) {
   }
 }
 
+#' Validate the training data and convert it to a feature matrix and response.
+#'
+#' Accepts the formula interface (`formula` and `data`) or the matrix
+#' interface (`x` and `y`), and returns the numeric feature matrix, the
+#' response, the class labels and the resolved mode.
+#'
+#' @srrstats {G2.0, G2.0a} `x` must have one row per value of `y`, at least one
+#'   row and column, and at least as many rows as classes. The lengths are
+#'   documented under `x` and `y` in `pptr()`.
+#' @srrstats {G2.1, G2.1a, G2.4, G2.4b, G2.4d} `x` is converted with
+#'   `as.matrix()` and must then be numeric; a classification response is
+#'   converted with `factor()`. The accepted types are documented under `x` and
+#'   `y` in `pptr()`.
+#' @srrstats {G2.3, G2.3a} `mode` must be `NULL` or one of
+#'   `"classification"` and `"regression"`.
+#' @srrstats {G2.5} A factor response is treated as unordered, with its levels
+#'   as the groups in level order, as documented under `y` in `pptr()`.
+#' @srrstats {G2.6, G2.7, G2.8, G2.11} Matrices, data frames, tibbles and
+#'   numeric vectors are all converted to one numeric matrix before reaching
+#'   the C++ core; numeric columns with non-standard classes are accepted.
+#' @srrstats {G2.9} No conversion loses information: a character response
+#'   becomes a factor with the same labels, and numeric columns keep their
+#'   names. Inputs that would need a lossy conversion, such as non-numeric
+#'   features, are an error.
+#' @srrstats {G2.13, G2.14, G2.14a, G2.15} Missing values in `x` or `y` are an
+#'   error. The formula interface uses `na.action = na.pass`, so rows with
+#'   missing values reach the check instead of being dropped by the default
+#'   `na.omit`, and no computation receives a missing value.
+#' @srrstats {G2.16} Infinite values in `x` are an error, and so are infinite
+#'   values in a regression response.
+#' @noRd
 resolve_model_data <- function(formula, data, x, y, mode = NULL) {
   if (!is.null(formula) && !is.null(data)) {
     if (!inherits(formula, "formula")) {

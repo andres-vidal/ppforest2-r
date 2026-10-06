@@ -25,11 +25,11 @@ pptr(
 
 \item{data}{A data frame containing the variables in the formula.}
 
-\item{x}{A numeric matrix or data frame of features, one row per observation.}
+\item{x}{A numeric matrix or data frame of features, one row per observation. It must have at least one row and one column, and no missing or infinite values.}
 
-\item{y}{The response, one value per row of \code{x}: a factor or character vector of labels for classification, or a numeric vector for regression.}
+\item{y}{The response, one value per row of \code{x}: a factor or character vector of labels for classification, or a numeric vector for regression. It must have no missing values. For classification, a character vector is converted with \code{factor()}; the groups are the factor's levels, in level order, and are treated as unordered. There must be at least as many observations as groups.}
 
-\item{mode}{Training mode: either \code{"classification"} or \code{"regression"}. When \code{NULL} (default), mode is auto-detected from \code{y}'s type — factor or character vectors trigger classification, numeric vectors trigger regression. Setting it explicitly is useful for the binary-integer-labels case (\code{mode = "classification"} with integer 0/1 labels) and for failing fast on a type mismatch (\code{mode = "regression"} with a factor \code{y} errors immediately).}
+\item{mode}{Training mode: either \code{"classification"} or \code{"regression"} (case-sensitive). When \code{NULL} (default), mode is auto-detected from \code{y}'s type — factor or character vectors trigger classification, numeric vectors trigger regression. Setting it explicitly is useful for the binary-integer-labels case (\code{mode = "classification"} with integer 0/1 labels) and for failing fast on a type mismatch (\code{mode = "regression"} with a factor \code{y} errors immediately).}
 
 \item{lambda}{A regularization parameter (default: 0.5). If \code{lambda = 0}, the model is trained using Linear Discriminant Analysis (LDA). If \code{lambda > 0}, the model is trained using Penalized Discriminant Analysis (PDA). The default uses PDA because pure LDA (\code{lambda = 0}) is ill-conditioned when there are more variables than effective observations (see the "Known limitations" section of the README). Cannot be used together with \code{pp}.}
 
@@ -79,6 +79,9 @@ pptr(Species ~ ., data = iris, lambda = 0.5)
 # Example 3: matrix interface with the `iris` dataset
 pptr(x = iris[, 1:4], y = iris[, 5])
 
+}
+\references{
+Lee, Y. D., Cook, D., Park, J. and Lee, E.-K. (2013). PPtree: Projection pursuit classification tree. \emph{Electronic Journal of Statistics}, 7. \doi{10.1214/13-EJS810}
 }
 \seealso{
 \code{\link{predict.pptr_classification}}, \code{\link{predict.pptr_regression}}, \code{\link{formula.ppmodel}}, \code{\link{print.pptr}}, \code{\link{save_json}}, \code{\link{load_json}}, \code{\link{pp_tree}} for parsnip integration

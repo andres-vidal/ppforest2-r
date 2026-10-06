@@ -11,6 +11,13 @@
 - Class predictions from `predict()` keep every group of the model as a factor level, including groups that are not predicted.
 - `stop_min_size()`, `stop_min_variance()` and `stop_max_depth()` error with a clear message when their argument is not a single value of the right type, instead of R's "the condition has length > 1" or silently truncating a non-integer.
 
+## Documentation
+
+- The introduction vignette has a terminology section defining the statistical terms the package uses.
+- The README describes how the package relates to `PPforest` and other oblique tree packages, and has a life cycle statement.
+- `?pptr` and `?pprf` list the method's references, and describe the accepted types of `x` and `y`, their lengths, and how a factor response's levels become the groups.
+- `benchmarks/compare-ppforest.R`, in the repository, times forest training in ppforest2 and `PPforest` on simulated data.
+
 ## Improvements
 
 - `predict()` accepts a data frame without the response column for models trained through the formula interface.

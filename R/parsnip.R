@@ -139,10 +139,12 @@ update.pp_tree <- function(object, parameters = NULL, penalty = NULL, fresh = FA
   update_pp_spec(object, parameters = parameters, args_enquo_list = args, fresh = fresh, cls = "pp_tree", ...)
 }
 
-# Local re-implementation of parsnip's internal `update_spec()`. We avoid the
-# triple-colon dependency to keep R CMD check clean. Behaviour mirrors
-# `parsnip:::update_spec`: replace main args (and engine args from `...`)
-# either by overlay (default) or completely (`fresh = TRUE`).
+#' Update a parsnip model specification.
+#'
+#' Local re-implementation of parsnip's internal `update_spec()`, which avoids a
+#' `:::` dependency. It replaces the main arguments, and the engine arguments
+#' from `...`, either by overlay (default) or completely (`fresh = TRUE`).
+#' @noRd
 update_pp_spec <- function(object, parameters, args_enquo_list, fresh, cls, ...) {
   eng_dots <- rlang::enquos(...)
   if (fresh) {
@@ -182,6 +184,8 @@ update_pp_spec <- function(object, parameters, args_enquo_list, fresh, cls, ...)
   )
 }
 
+#' Register the `pp_rand_forest` model and its ppforest2 engine with parsnip.
+#' @noRd
 register_pp_rand_forest <- function() {
   try(parsnip::set_new_model("pp_rand_forest"), silent = TRUE)
   parsnip::set_model_mode("pp_rand_forest", "classification")
@@ -314,6 +318,8 @@ register_pp_rand_forest <- function() {
   )
 }
 
+#' Register the `pp_tree` model and its ppforest2 engine with parsnip.
+#' @noRd
 register_pp_tree <- function() {
   try(parsnip::set_new_model("pp_tree"), silent = TRUE)
   parsnip::set_model_mode("pp_tree", "classification")

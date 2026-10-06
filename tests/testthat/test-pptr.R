@@ -669,7 +669,12 @@ describe("pptr call capture and update()", {
   })
 })
 
-describe("pptr input validation", {
+#' @srrstats {G5.8, G5.8a, G5.8b} Edge cases: data with no observations or no
+#'   features, missing and infinite values, list columns and unsupported
+#'   argument types are each rejected with an informative error.
+NULL
+
+describe("pptr training data checks", {
   it("rejects Inf in features", {
     x <- matrix(c(1, Inf, 3, 4, 1, 2, 3, 4), ncol = 2)
     expect_error(pptr(x = x, y = c("a", "a", "b", "b")), "finite")

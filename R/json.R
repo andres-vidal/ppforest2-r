@@ -20,6 +20,7 @@
 #' path <- tempfile(fileext = ".json")
 #' save_json(model, path)
 #'
+#' @srrstats {G4.0} `path` gets a `.json` suffix when it does not have one.
 #' @export
 save_json <- function(model, path, ...) {
   UseMethod("save_json")

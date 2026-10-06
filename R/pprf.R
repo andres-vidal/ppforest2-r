@@ -42,6 +42,14 @@ NULL
 #'   \code{c("pprf_classification", "pprf", "ppmodel")} or
 #'   \code{c("pprf_regression", "pprf", "ppmodel")} depending on the mode.
 #' @seealso \code{\link{predict.pprf_classification}}, \code{\link{predict.pprf_regression}}, \code{\link{formula.ppmodel}}, \code{\link{oob_error}}, \code{\link{save_json}}, \code{\link{load_json}}, \code{\link{pp_rand_forest}} for parsnip integration, \code{vignette("introduction")} for a tutorial
+#' @references
+#' Lee, Y. D., Cook, D., Park, J. and Lee, E.-K. (2013). PPtree: Projection pursuit classification tree. \emph{Electronic Journal of Statistics}, 7. \doi{10.1214/13-EJS810}
+#'
+#' da Silva, N., Cook, D. and Lee, E.-K. (2021). A projection pursuit forest algorithm for supervised classification. \emph{Journal of Computational and Graphical Statistics}, 30(4), 1168--1180. \doi{10.1080/10618600.2020.1870480}
+#'
+#' @srrstats {G2.2} Scalar arguments (`size`, `seed`, `threads`,
+#'   `max_retries`, `lambda`, `n_vars`, `p_vars`) must be single values, here
+#'   and in the strategy constructors; vectors are an error.
 #' @examples
 #'
 #' # Example 1: formula interface with the `iris` dataset
@@ -209,7 +217,7 @@ pprf <- function(
 #'
 #' @param object A \code{pprf_classification} model.
 #' @param new_data A data frame or matrix of new observations. If \code{NULL}, the first positional argument in \code{...} is used for backward compatibility.
-#' @param type The type of prediction: \code{"class"} (default) returns a factor of predicted labels, \code{"prob"} returns a data frame of vote proportions.
+#' @param type The type of prediction (case-sensitive): \code{"class"} (default) returns a factor of predicted labels, \code{"prob"} returns a data frame of vote proportions.
 #' @param ... For backward compatibility, the first positional argument is treated as \code{new_data} when \code{new_data} is \code{NULL}.
 #' @return If \code{type = "class"}, a factor of predicted labels. If \code{type = "prob"}, a data frame with one column per group, each row summing to 1.
 #' @seealso \code{\link{pprf}}, \code{\link{predict.pprf_regression}}
@@ -243,7 +251,7 @@ predict.pprf_classification <- function(object, new_data = NULL, type = NULL, ..
 #'
 #' @param object A \code{pprf_regression} model.
 #' @param new_data A data frame or matrix of new observations.
-#' @param type Must be \code{"response"} (default).
+#' @param type Must be \code{"response"} (default; case-sensitive).
 #' @param ... For backward compatibility, the first positional argument is treated as \code{new_data} when \code{new_data} is \code{NULL}.
 #' @return A numeric vector of mean predictions across the forest's trees.
 #' @seealso \code{\link{pprf}}, \code{\link{predict.pprf_classification}}
@@ -402,8 +410,11 @@ summary.pprf_regression <- function(object, ...) {
 # Helpers -- these are for `summary()`, not part of the public API.
 # ---------------------------------------------------------------------------
 
-# Print a VI table. For forests, `include_oob_importances` pulls the lazy
-# `weighted` and `permuted` importances. For trees, these are absent.
+#' Print a variable importance table.
+#'
+#' For forests, `include_oob_importances` adds the lazily computed weighted
+#' and permuted importances, which trees do not have.
+#' @noRd
 .print_vi_table <- function(model, include_oob_importances) {
   cat("Variable Importance:\n\n")
 

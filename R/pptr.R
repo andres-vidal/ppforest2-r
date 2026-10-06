@@ -12,9 +12,9 @@ NULL
 #'
 #' @param formula A formula of the form \code{y ~ x1 + x2 + ...}, where \code{y} is a vector of labels and \code{x1}, \code{x2}, ... are the features.
 #' @param data A data frame containing the variables in the formula.
-#' @param x A numeric matrix or data frame of features, one row per observation.
-#' @param y The response, one value per row of \code{x}: a factor or character vector of labels for classification, or a numeric vector for regression.
-#' @param mode Training mode: either \code{"classification"} or \code{"regression"}. When \code{NULL} (default), mode is auto-detected from \code{y}'s type — factor or character vectors trigger classification, numeric vectors trigger regression. Setting it explicitly is useful for the binary-integer-labels case (\code{mode = "classification"} with integer 0/1 labels) and for failing fast on a type mismatch (\code{mode = "regression"} with a factor \code{y} errors immediately).
+#' @param x A numeric matrix or data frame of features, one row per observation. It must have at least one row and one column, and no missing or infinite values.
+#' @param y The response, one value per row of \code{x}: a factor or character vector of labels for classification, or a numeric vector for regression. It must have no missing values. For classification, a character vector is converted with \code{factor()}; the groups are the factor's levels, in level order, and are treated as unordered. There must be at least as many observations as groups.
+#' @param mode Training mode: either \code{"classification"} or \code{"regression"} (case-sensitive). When \code{NULL} (default), mode is auto-detected from \code{y}'s type — factor or character vectors trigger classification, numeric vectors trigger regression. Setting it explicitly is useful for the binary-integer-labels case (\code{mode = "classification"} with integer 0/1 labels) and for failing fast on a type mismatch (\code{mode = "regression"} with a factor \code{y} errors immediately).
 #' @param lambda A regularization parameter (default: 0.5). If \code{lambda = 0}, the model is trained using Linear Discriminant Analysis (LDA). If \code{lambda > 0}, the model is trained using Penalized Discriminant Analysis (PDA). The default uses PDA because pure LDA (\code{lambda = 0}) is ill-conditioned when there are more variables than effective observations (see the "Known limitations" section of the README). Cannot be used together with \code{pp}.
 #' @param seed An optional integer seed for reproducibility. If \code{NULL} (default), a seed is drawn from R's RNG, so \code{set.seed()} controls reproducibility. If an integer is provided, that value is used directly.
 #' @param pp A projection pursuit strategy object created by \code{\link{pp_pda}}. Cannot be used together with \code{lambda}.
@@ -36,6 +36,14 @@ NULL
 #'   \code{c("pptr_classification", "pptr", "ppmodel")} or
 #'   \code{c("pptr_regression", "pptr", "ppmodel")} depending on the mode.
 #' @seealso \code{\link{predict.pptr_classification}}, \code{\link{predict.pptr_regression}}, \code{\link{formula.ppmodel}}, \code{\link{print.pptr}}, \code{\link{save_json}}, \code{\link{load_json}}, \code{\link{pp_tree}} for parsnip integration
+#' @references
+#' Lee, Y. D., Cook, D., Park, J. and Lee, E.-K. (2013). PPtree: Projection pursuit classification tree. \emph{Electronic Journal of Statistics}, 7. \doi{10.1214/13-EJS810}
+#'
+#' @srrstats {G1.0} The primary references for the method are listed under
+#'   References and in `DESCRIPTION`.
+#' @srrstats {G1.4} Every exported function is documented with roxygen2.
+#' @srrstats {G2.4a} `seed` must be integer-valued and is converted with
+#'   `as.integer()` before reaching the C++ core.
 #' @examples
 #'
 #' # Example 1: formula interface with the `iris` dataset
@@ -145,7 +153,7 @@ pptr <- function(
 #'
 #' @param object A \code{pptr_classification} model.
 #' @param new_data A data frame or matrix of new observations. If \code{NULL}, the first positional argument in \code{...} is used for backward compatibility.
-#' @param type \code{"class"} (default) returns a factor of predicted labels; \code{"prob"} returns a data frame with 1.0 for the predicted group and 0.0 elsewhere.
+#' @param type Case-sensitive. \code{"class"} (default) returns a factor of predicted labels; \code{"prob"} returns a data frame with 1.0 for the predicted group and 0.0 elsewhere.
 #' @param ... Backward-compat positional `new_data`.
 #' @return A factor or data frame.
 #' @seealso \code{\link{pptr}}, \code{\link{predict.pptr_regression}}
@@ -175,7 +183,7 @@ predict.pptr_classification <- function(object, new_data = NULL, type = NULL, ..
 #'
 #' @param object A \code{pptr_regression} model.
 #' @param new_data A data frame or matrix of new observations.
-#' @param type Must be \code{"response"} (default).
+#' @param type Must be \code{"response"} (default; case-sensitive).
 #' @param ... Backward-compat positional `new_data`.
 #' @return A numeric vector.
 #' @seealso \code{\link{pptr}}, \code{\link{predict.pptr_classification}}
@@ -221,8 +229,10 @@ print.pptr <- function(x, ...) {
   invisible(x)
 }
 
-# Internal generic: walks the tree recursively, dispatching on the model's
-# class to format leaf values differently per mode.
+#' Print a tree node and its subtree.
+#'
+#' Dispatches on the model's class so that leaf values are formatted per mode.
+#' @noRd
 print_node <- function(model, node, depth = 0) UseMethod("print_node")
 
 #' @export
@@ -235,7 +245,10 @@ print_node.pptr_regression <- function(model, node, depth = 0) {
   .print_node_impl(model, node, depth, function(value) format(as.numeric(value), digits = 4))
 }
 
-# Shared recursion. `format_leaf` turns the raw leaf value into a display string.
+#' Print a tree node recursively.
+#'
+#' `format_leaf` turns a raw leaf value into the string printed for it.
+#' @noRd
 .print_node_impl <- function(model, node, depth, format_leaf) {
   indent <- paste(rep(" ", depth), collapse = "")
 
