@@ -12,3 +12,72 @@ navbar:
       icon: fa-github
       href: https://github.com/andres-vidal/ppforest2-r
       aria-label: GitHub
+
+reference:
+  - title: Models
+    contents:
+      - pptr
+      - pprf
+  - title: Prediction and fitted values
+    contents:
+      - starts_with("predict.")
+      - fitted.ppmodel
+      - residuals.ppmodel
+      - nobs.ppmodel
+      - formula.ppmodel
+  - title: Printing and summaries
+    contents:
+      - print.pptr
+      - print.pprf
+      - summary.pprf
+  - title: Out-of-bag results
+    contents:
+      - oob_error
+      - oob_predictions
+      - oob_samples
+      - bag_samples
+  - title: Variable importance
+    contents:
+      - projection_importance
+      - weighted_importance
+      - permuted_importance
+  - title: Plotting
+    contents:
+      - plot.pptr
+      - plot.pprf
+  - title: Training strategies
+    desc: >
+      Each step of node training is a strategy that can be replaced. See
+      `vignette("custom-strategies")`.
+    contents:
+      - pp_pda
+      - starts_with("vars_")
+      - cutpoint_mean_of_means
+      - starts_with("stop_")
+      - starts_with("binarize_")
+      - starts_with("grouping_")
+      - starts_with("leaf_")
+  - title: tidymodels integration
+    contents:
+      - pp_tree
+      - pp_rand_forest
+      - update.pp_tree
+      - update.pp_rand_forest
+  - title: Saving and loading models
+    contents:
+      - save_json
+      - load_json
+  - title: Datasets
+    contents:
+      - california_housing
+      - crab
+      - crabs
+      - fishcatch
+      - glass
+      - image
+      - leukemia
+      - lymphoma
+      - NCI60
+      - olive
+      - parkinson
+      - wine
