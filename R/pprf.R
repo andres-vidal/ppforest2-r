@@ -14,11 +14,7 @@ NULL
 #'
 #' OOB error, OOB predictions, permuted variable importance, and weighted variable importance are computed lazily on first access via the accessor functions (`oob_error()`, `oob_predictions()`, `permuted_importance()`, `weighted_importance()`). Training itself is fast because these OOB-based computations are deferred.
 #'
-#' @param formula A formula of the form \code{y ~ x1 + x2 + ...}, where \code{y} is a vector of labels and \code{x1}, \code{x2}, ... are the features.
-#' @param data A data frame containing the variables in the formula.
-#' @param x A matrix containing the features for each observation.
-#' @param y A matrix containing the labels for each observation.
-#' @param mode Training mode: either \code{"classification"} or \code{"regression"}. When \code{NULL} (default), mode is auto-detected from \code{y}'s type — factor or character vectors trigger classification, numeric vectors trigger regression. Setting it explicitly is useful for the binary-integer-labels case (\code{mode = "classification"} with integer 0/1 labels) and for failing fast on a type mismatch (\code{mode = "regression"} with a factor \code{y} errors immediately).
+#' @inheritParams pptr
 #' @param size The number of trees in the forest (default: 100).
 #' @param lambda A regularization parameter (default: 0.5). If \code{lambda = 0}, the model is trained using Linear Discriminant Analysis (LDA). If \code{lambda > 0}, the model is trained using Penalized Discriminant Analysis (PDA). The default uses PDA because pure LDA (\code{lambda = 0}) is ill-conditioned when there are more variables than effective observations (see the "Known limitations" section of the README). Cannot be used together with \code{pp}.
 #' @param n_vars The number of variables to consider at each split (integer). These are chosen uniformly in each split. By default, half of the variables are used (\code{p_vars = 0.5}). Cannot be used together with \code{p_vars} or \code{dr}.
