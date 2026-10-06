@@ -12,9 +12,9 @@ NULL
 #'
 #' @param formula A formula of the form \code{y ~ x1 + x2 + ...}, where \code{y} is a vector of labels and \code{x1}, \code{x2}, ... are the features.
 #' @param data A data frame containing the variables in the formula.
-#' @param x A matrix containing the features for each observation.
-#' @param y A matrix containing the labels for each observation.
-#' @param mode Training mode: either \code{"classification"} or \code{"regression"}. When \code{NULL} (default), mode is auto-detected from \code{y}'s type — factor or character vectors trigger classification, numeric vectors trigger regression. Setting it explicitly is useful for the binary-integer-labels case (\code{mode = "classification"} with integer 0/1 labels) and for failing fast on a type mismatch (\code{mode = "regression"} with a factor \code{y} errors immediately).
+#' @param x A numeric matrix or data frame of features, one row per observation. It must have at least one row and one column, and no missing or infinite values.
+#' @param y The response, one value per row of \code{x}: a factor or character vector of labels for classification, or a numeric vector for regression. It must have no missing values. For classification, a character vector is converted with \code{factor()}; the groups are the factor's levels, in level order, and are treated as unordered. There must be at least as many observations as groups.
+#' @param mode Training mode: either \code{"classification"} or \code{"regression"} (case-sensitive). When \code{NULL} (default), mode is auto-detected from \code{y}'s type — factor or character vectors trigger classification, numeric vectors trigger regression. Setting it explicitly is useful for the binary-integer-labels case (\code{mode = "classification"} with integer 0/1 labels) and for failing fast on a type mismatch (\code{mode = "regression"} with a factor \code{y} errors immediately).
 #' @param lambda A regularization parameter (default: 0.5). If \code{lambda = 0}, the model is trained using Linear Discriminant Analysis (LDA). If \code{lambda > 0}, the model is trained using Penalized Discriminant Analysis (PDA). The default uses PDA because pure LDA (\code{lambda = 0}) is ill-conditioned when there are more variables than effective observations (see the "Known limitations" section of the README). Cannot be used together with \code{pp}.
 #' @param seed An optional integer seed for reproducibility. If \code{NULL} (default), a seed is drawn from R's RNG, so \code{set.seed()} controls reproducibility. If an integer is provided, that value is used directly.
 #' @param pp A projection pursuit strategy object created by \code{\link{pp_pda}}. Cannot be used together with \code{lambda}.
@@ -32,10 +32,76 @@ NULL
 #' @param leaf A leaf strategy object. Default depends on mode:
 #'   \code{\link{leaf_majority_vote}()} for classification, and
 #'   \code{\link{leaf_mean_response}()} for regression.
-#' @return A \code{pptr} model. Its S3 class vector is
+#' @section Input data:
+#' With the formula interface, the feature matrix is built with
+#' \code{model.matrix()} from the formula without an intercept: numeric
+#' columns are used as they are, and each factor predictor becomes indicator
+#' columns, one per level. The response is taken with \code{model.response()}.
+#' With the matrix interface, \code{x} is converted with \code{as.matrix()}.
+#'
+#' Features must be numeric. Factor predictors are accepted only through the
+#' formula interface; character and list columns are an error, and so are
+#' missing or infinite values in the features or the response. Rows with
+#' missing values are not dropped: remove or impute them before training.
+#'
+#' A classification response that is not a factor is converted with
+#' \code{factor()}. To choose the groups and their order, pass \code{y} as a
+#' factor with those levels; to treat integer labels as groups, use
+#' \code{mode = "classification"}.
+#'
+#' The method makes no distributional assumptions. Each split looks for a
+#' linear combination of the features that separates the groups, so groups
+#' that differ only in non-linear ways need more splits. Results do not depend
+#' on the units of the features: rescaling or shifting a feature leaves the
+#' splits and predictions unchanged. Perfectly collinear features, or more
+#' features than observations at a node, make the LDA index
+#' (\code{lambda = 0}) singular; the node then cannot be split, it becomes a
+#' degenerate leaf, and a warning is issued. The PDA index (\code{lambda > 0})
+#' is not affected. A warning is also issued for features that are perfectly
+#' collinear with each other or with a regression response.
+#'
+#' The row and column names of the training data are kept in the model's
+#' \code{x}, and the column names in its variable importance. Predictions are
+#' returned in the order of the rows of \code{new_data}, without row names.
+#'
+#' @return A \code{pptr} model: a list with S3 class
 #'   \code{c("pptr_classification", "pptr", "ppmodel")} or
-#'   \code{c("pptr_regression", "pptr", "ppmodel")} depending on the mode.
+#'   \code{c("pptr_regression", "pptr", "ppmodel")}, depending on the mode.
+#'   Its elements include \code{root} (the fitted tree); \code{x} and
+#'   \code{y} (the training features and response, in the order given, with
+#'   \code{y} holding group indices for classification); \code{groups} (the
+#'   class labels); \code{mode}; \code{formula} (\code{NULL} for the matrix
+#'   interface); \code{training_spec} (the strategies used); \code{seed};
+#'   \code{degenerate} (\code{TRUE} when some node could not be split, see
+#'   Input data); and \code{vi} (variable importance). Where an accessor
+#'   exists, such as \code{fitted()}, \code{residuals()}, \code{nobs()} or
+#'   \code{formula()}, prefer it to the element.
 #' @seealso \code{\link{predict.pptr_classification}}, \code{\link{predict.pptr_regression}}, \code{\link{formula.ppmodel}}, \code{\link{print.pptr}}, \code{\link{save_json}}, \code{\link{load_json}}, \code{\link{pp_tree}} for parsnip integration
+#' @references
+#' Lee, Y. D., Cook, D., Park, J. and Lee, E.-K. (2013). PPtree: Projection pursuit classification tree. \emph{Electronic Journal of Statistics}, 7. \doi{10.1214/13-EJS810}
+#'
+#' @srrstats {G1.0} The primary references for the method are listed under
+#'   References and in `DESCRIPTION`.
+#' @srrstats {G1.4} Every exported function is documented with roxygen2.
+#' @srrstats {RE1.0} Models can be specified with a formula.
+#' @srrstats {RE1.1, RE1.2, RE1.3a, RE1.4, RE2.0} The "Input data" section
+#'   documents how the formula becomes a feature matrix, the accepted and
+#'   rejected predictor types, the transformations applied and how to avoid
+#'   them, the assumptions and the effect of violating them, and that row names
+#'   are not carried into predictions.
+#' @srrstats {RE1.3} The row and column names of the training data are kept in
+#'   `model$x`, and the column names in the variable importance vectors.
+#' @srrstats {RE3.0, RE3.1} Nodes that projection pursuit cannot split, the
+#'   analogue of a failure to converge, produce a warning that can be
+#'   suppressed, and the model records them in `degenerate`.
+#' @srrstats {RE3.2, RE3.3} The stopping rules, which decide when a node stops
+#'   splitting, have documented defaults and are set with the `stop` argument;
+#'   `max_retries` in `pprf()` sets how often a degenerate tree is retrained.
+#' @srrstats {RE4.0, RE4.7, RE4.8, RE4.13} The model object has its own S3
+#'   classes and holds the training features and response, their metadata (the
+#'   group labels and feature names) and the degenerate-node indicator.
+#' @srrstats {G2.4a} `seed` must be integer-valued and is converted with
+#'   `as.integer()` before reaching the C++ core.
 #' @examples
 #'
 #' # Example 1: formula interface with the `iris` dataset
@@ -123,7 +189,7 @@ pptr <- function(
 
   model$vi <- list(
     scale       = scale,
-    projections = ppforest2_vi_projections_tree(model, ncol(x), scale)
+    projections = stats::setNames(ppforest2_vi_projections_tree(model, ncol(x), scale), colnames(x))
   )
 
   model$.cache <- .new_cache()
@@ -145,7 +211,7 @@ pptr <- function(
 #'
 #' @param object A \code{pptr_classification} model.
 #' @param new_data A data frame or matrix of new observations. If \code{NULL}, the first positional argument in \code{...} is used for backward compatibility.
-#' @param type \code{"class"} (default) returns a factor of predicted labels; \code{"prob"} returns a data frame with 1.0 for the predicted group and 0.0 elsewhere.
+#' @param type Case-sensitive. \code{"class"} (default) returns a factor of predicted labels; \code{"prob"} returns a data frame with 1.0 for the predicted group and 0.0 elsewhere.
 #' @param ... Backward-compat positional `new_data`.
 #' @return A factor or data frame.
 #' @seealso \code{\link{pptr}}, \code{\link{predict.pptr_regression}}
@@ -175,7 +241,7 @@ predict.pptr_classification <- function(object, new_data = NULL, type = NULL, ..
 #'
 #' @param object A \code{pptr_regression} model.
 #' @param new_data A data frame or matrix of new observations.
-#' @param type Must be \code{"response"} (default).
+#' @param type Must be \code{"response"} (default; case-sensitive).
 #' @param ... Backward-compat positional `new_data`.
 #' @return A numeric vector.
 #' @seealso \code{\link{pptr}}, \code{\link{predict.pptr_classification}}
@@ -209,6 +275,7 @@ predict.pptr_regression <- function(object, new_data = NULL, type = NULL, ...) {
 #' @return Invisibly returns the input \code{pptr} model \code{x} (unchanged).
 #'   Called for its side effect of printing the tree structure -- the oblique
 #'   split rules and leaf predictions -- to the console.
+#' @srrstats {RE4.17} `print()` shows the training specification and the tree.
 #' @export
 print.pptr <- function(x, ...) {
   cat("\n")
@@ -221,8 +288,10 @@ print.pptr <- function(x, ...) {
   invisible(x)
 }
 
-# Internal generic: walks the tree recursively, dispatching on the model's
-# class to format leaf values differently per mode.
+#' Print a tree node and its subtree.
+#'
+#' Dispatches on the model's class so that leaf values are formatted per mode.
+#' @noRd
 print_node <- function(model, node, depth = 0) UseMethod("print_node")
 
 #' @export
@@ -235,7 +304,10 @@ print_node.pptr_regression <- function(model, node, depth = 0) {
   .print_node_impl(model, node, depth, function(value) format(as.numeric(value), digits = 4))
 }
 
-# Shared recursion. `format_leaf` turns the raw leaf value into a display string.
+#' Print a tree node recursively.
+#'
+#' `format_leaf` turns a raw leaf value into the string printed for it.
+#' @noRd
 .print_node_impl <- function(model, node, depth, format_leaf) {
   indent <- paste(rep(" ", depth), collapse = "")
 

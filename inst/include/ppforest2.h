@@ -254,6 +254,7 @@ namespace Rcpp {
     // `e.groups` is empty for regression (no group concept) — R sees an
     // empty character vector either way.
     result["groups"] = Rcpp::wrap(e.groups);
+    result["feature_names"] = Rcpp::wrap(e.feature_names);
     if (e.model->training_spec)
       result["seed"] = e.model->training_spec->seed;
     if (e.variable_importance)

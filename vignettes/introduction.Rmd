@@ -21,6 +21,22 @@ knitr::opts_chunk$set(
 
 ppforest2 builds oblique decision trees and random forests using projection pursuit. Instead of splitting on a single variable at each node, it finds a linear combination of variables that best separates the groups.
 
+## Terminology
+
+- **Projection pursuit**: searching for a linear combination of the variables, a *projection*, that maximizes an index measuring how well the projected data separate the groups.
+- **Projector**: the coefficients of that linear combination at a node. Projecting an observation means taking its dot product with the projector.
+- **Oblique split**: a split on a projected value instead of on a single variable. The decision boundary is a hyperplane that need not be parallel to the axes.
+- **LDA index**: the ratio of the between-group sum of squares to the total (between-group plus within-group) sum of squares of the projected data, as in linear discriminant analysis.
+- **PDA index** and `lambda`: the LDA index with the off-diagonal entries of the within-group sum of squares matrix multiplied by `1 - lambda`. `lambda = 0` gives the LDA index; larger values shrink the within-group covariances towards zero, which keeps the index well conditioned when variables are correlated or outnumber the observations.
+- **Binarization**: when a node has more than two classes, they are first grouped into two. By default the classes are sorted by their projected means and divided at the largest gap between consecutive means.
+- **Cutpoint**: the projected value at which a node divides its observations. By default it is the mean of the two projected group means.
+- **Stopping rule**: the condition under which a node becomes a leaf. For classification the default stops at nodes that contain a single class.
+- **Degenerate node**: a node where projection pursuit cannot find a projection that separates the groups, for example because the within-group scatter is singular. It becomes a leaf that predicts its most frequent group, and a warning is issued.
+- **Random forest**: a set of trees, each trained on a bootstrap sample of the observations (stratified by class for classification), with a random subset of the variables (`n_vars` or `p_vars`) considered at each split. The forest predicts by majority vote, or by averaging for regression.
+- **Out-of-bag (OOB) observations**: the observations left out of a tree's bootstrap sample. Predicting each observation with only the trees that did not see it gives the OOB error, an estimate of the forest's error on new data.
+- **Variable importance**: three measures, documented in `projection_importance()`, `weighted_importance()` and `permuted_importance()`: the absolute projector coefficients scaled by each variable's standard deviation; the same coefficients weighted by each tree's OOB accuracy; and the drop in OOB accuracy when a variable's values are permuted.
+- **Regression** (experimental): at each node the continuous response is split into two groups so that the same index applies, and leaves predict the mean response of their observations.
+
 ## Single tree
 
 Train a projection-pursuit tree on the iris dataset:

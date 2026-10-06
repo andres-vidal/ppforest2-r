@@ -11,7 +11,7 @@
 
 \item{new_data}{A data frame or matrix of new observations. If \code{NULL}, the first positional argument in \code{...} is used for backward compatibility.}
 
-\item{type}{\code{"class"} (default) returns a factor of predicted labels; \code{"prob"} returns a data frame with 1.0 for the predicted group and 0.0 elsewhere.}
+\item{type}{Case-sensitive. \code{"class"} (default) returns a factor of predicted labels; \code{"prob"} returns a data frame with 1.0 for the predicted group and 0.0 elsewhere.}
 
 \item{...}{Backward-compat positional `new_data`.}
 }

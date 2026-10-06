@@ -14,11 +14,7 @@ NULL
 #'
 #' OOB error, OOB predictions, permuted variable importance, and weighted variable importance are computed lazily on first access via the accessor functions (`oob_error()`, `oob_predictions()`, `permuted_importance()`, `weighted_importance()`). Training itself is fast because these OOB-based computations are deferred.
 #'
-#' @param formula A formula of the form \code{y ~ x1 + x2 + ...}, where \code{y} is a vector of labels and \code{x1}, \code{x2}, ... are the features.
-#' @param data A data frame containing the variables in the formula.
-#' @param x A matrix containing the features for each observation.
-#' @param y A matrix containing the labels for each observation.
-#' @param mode Training mode: either \code{"classification"} or \code{"regression"}. When \code{NULL} (default), mode is auto-detected from \code{y}'s type — factor or character vectors trigger classification, numeric vectors trigger regression. Setting it explicitly is useful for the binary-integer-labels case (\code{mode = "classification"} with integer 0/1 labels) and for failing fast on a type mismatch (\code{mode = "regression"} with a factor \code{y} errors immediately).
+#' @inheritParams pptr
 #' @param size The number of trees in the forest (default: 100).
 #' @param lambda A regularization parameter (default: 0.5). If \code{lambda = 0}, the model is trained using Linear Discriminant Analysis (LDA). If \code{lambda > 0}, the model is trained using Penalized Discriminant Analysis (PDA). The default uses PDA because pure LDA (\code{lambda = 0}) is ill-conditioned when there are more variables than effective observations (see the "Known limitations" section of the README). Cannot be used together with \code{pp}.
 #' @param n_vars The number of variables to consider at each split (integer). These are chosen uniformly in each split. By default, half of the variables are used (\code{p_vars = 0.5}). Cannot be used together with \code{p_vars} or \code{dr}.
@@ -42,10 +38,24 @@ NULL
 #' @param leaf A leaf strategy object. Default depends on mode:
 #'   \code{\link{leaf_majority_vote}()} for classification, and
 #'   \code{\link{leaf_mean_response}()} for regression.
-#' @return A \code{pprf} model. Its S3 class vector is
+#' @inheritSection pptr Input data
+#' @return A \code{pprf} model: a list with S3 class
 #'   \code{c("pprf_classification", "pprf", "ppmodel")} or
-#'   \code{c("pprf_regression", "pprf", "ppmodel")} depending on the mode.
+#'   \code{c("pprf_regression", "pprf", "ppmodel")}, depending on the mode.
+#'   It has the same elements as a \code{\link{pptr}} model, with
+#'   \code{trees} in place of \code{root}: the bagged trees, each with the
+#'   0-based row positions of its bootstrap sample in \code{sample_indices}.
+#'   \code{degenerate} is \code{TRUE} when some tree has a node that could not
+#'   be split.
 #' @seealso \code{\link{predict.pprf_classification}}, \code{\link{predict.pprf_regression}}, \code{\link{formula.ppmodel}}, \code{\link{oob_error}}, \code{\link{save_json}}, \code{\link{load_json}}, \code{\link{pp_rand_forest}} for parsnip integration, \code{vignette("introduction")} for a tutorial
+#' @references
+#' Lee, Y. D., Cook, D., Park, J. and Lee, E.-K. (2013). PPtree: Projection pursuit classification tree. \emph{Electronic Journal of Statistics}, 7. \doi{10.1214/13-EJS810}
+#'
+#' da Silva, N., Cook, D. and Lee, E.-K. (2021). A projection pursuit forest algorithm for supervised classification. \emph{Journal of Computational and Graphical Statistics}, 30(4), 1168--1180. \doi{10.1080/10618600.2020.1870480}
+#'
+#' @srrstats {G2.2} Scalar arguments (`size`, `seed`, `threads`,
+#'   `max_retries`, `lambda`, `n_vars`, `p_vars`) must be single values, here
+#'   and in the strategy constructors; vectors are an error.
 #' @examples
 #'
 #' # Example 1: formula interface with the `iris` dataset
@@ -190,7 +200,7 @@ pprf <- function(
   scale <- feature_scale(x)
   model$vi <- list(
     scale       = scale,
-    projections = ppforest2_vi_projections_forest(model, ncol(x), scale)
+    projections = stats::setNames(ppforest2_vi_projections_forest(model, ncol(x), scale), colnames(x))
   )
 
   # Lazy-compute cache for OOB metrics and permuted/weighted importance.
@@ -213,7 +223,7 @@ pprf <- function(
 #'
 #' @param object A \code{pprf_classification} model.
 #' @param new_data A data frame or matrix of new observations. If \code{NULL}, the first positional argument in \code{...} is used for backward compatibility.
-#' @param type The type of prediction: \code{"class"} (default) returns a factor of predicted labels, \code{"prob"} returns a data frame of vote proportions.
+#' @param type The type of prediction (case-sensitive): \code{"class"} (default) returns a factor of predicted labels, \code{"prob"} returns a data frame of vote proportions.
 #' @param ... For backward compatibility, the first positional argument is treated as \code{new_data} when \code{new_data} is \code{NULL}.
 #' @return If \code{type = "class"}, a factor of predicted labels. If \code{type = "prob"}, a data frame with one column per group, each row summing to 1.
 #' @seealso \code{\link{pprf}}, \code{\link{predict.pprf_regression}}
@@ -247,7 +257,7 @@ predict.pprf_classification <- function(object, new_data = NULL, type = NULL, ..
 #'
 #' @param object A \code{pprf_regression} model.
 #' @param new_data A data frame or matrix of new observations.
-#' @param type Must be \code{"response"} (default).
+#' @param type Must be \code{"response"} (default; case-sensitive).
 #' @param ... For backward compatibility, the first positional argument is treated as \code{new_data} when \code{new_data} is \code{NULL}.
 #' @return A numeric vector of mean predictions across the forest's trees.
 #' @seealso \code{\link{pprf}}, \code{\link{predict.pprf_classification}}
@@ -335,6 +345,10 @@ summary.ppmodel <- function(object, ...) {
 #'   the training specification, data summary, and variable-importance table
 #'   (plus, for classification, the training/OOB confusion matrices) -- to the
 #'   console.
+#' @srrstats {RE4.11, RE4.18} `summary()` reports the training and out-of-bag
+#'   error rates and confusion matrices for classification, MSE, MAE and R^2 for
+#'   regression, and variable importance. The out-of-bag statistics, which are
+#'   expensive, are only computed here or through their accessors.
 #' @export
 summary.pprf <- function(object, ...) {
   model <- object
@@ -406,8 +420,11 @@ summary.pprf_regression <- function(object, ...) {
 # Helpers -- these are for `summary()`, not part of the public API.
 # ---------------------------------------------------------------------------
 
-# Print a VI table. For forests, `include_oob_importances` pulls the lazy
-# `weighted` and `permuted` importances. For trees, these are absent.
+#' Print a variable importance table.
+#'
+#' For forests, `include_oob_importances` adds the lazily computed weighted
+#' and permuted importances, which trees do not have.
+#' @noRd
 .print_vi_table <- function(model, include_oob_importances) {
   cat("Variable Importance:\n\n")
 
