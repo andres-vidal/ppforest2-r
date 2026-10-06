@@ -11,12 +11,15 @@ NULL
 # were persisted during training-time save.
 # ---------------------------------------------------------------------------
 
-# Create a fresh cache environment.
+#' Create a fresh cache environment.
+#' @noRd
 .new_cache <- function() new.env(parent = emptyenv())
 
-# Return the cached value for `key`, computing via `compute_fn` on first access.
-# Falls back to uncached compute if `model$.cache` is missing (e.g. models
-# assembled manually in tests).
+#' Return the cached value for `key`, computing it with `compute_fn` on first access.
+#'
+#' Computes without caching when `model$.cache` is missing, for example in
+#' models assembled manually in tests.
+#' @noRd
 .cached_or_compute <- function(model, key, compute_fn) {
   cache <- model$.cache
   if (is.null(cache)) return(compute_fn())
@@ -26,8 +29,10 @@ NULL
   get(key, envir = cache, inherits = FALSE)
 }
 
-# Stash a pre-computed value directly into the cache (used by load_json to
-# preserve OOB metrics saved during training-time serialization).
+#' Store a precomputed value in the cache.
+#'
+#' Used by `load_json()` to keep the OOB metrics saved at training time.
+#' @noRd
 .prime_cache <- function(model, key, value) {
   cache <- model$.cache
   if (is.null(cache)) return(invisible(NULL))
@@ -409,12 +414,12 @@ residuals.ppmodel <- function(object, ...) {
 # Internal helpers
 # ---------------------------------------------------------------------------
 
-# Throws a clear error if required training-data fields are missing on the
-# model (e.g. the model was loaded from JSON without the original x/y).
-# Distinguishes between "loaded model without data" (JSON doesn't carry x/y,
-# user should reattach) and "metrics were never computed at save time" (the
-# saved JSON had `include_metrics = FALSE`, so priming the cache was a
-# no-op and no recomputation is possible).
+#' Error clearly when an accessor needs training data the model does not have.
+#'
+#' Distinguishes a model loaded from JSON without its training data, where the
+#' user can reattach `x` and `y`, from metrics that were not saved because the
+#' JSON was written with `include_metrics = FALSE`.
+#' @noRd
 .require_training_data <- function(model, fields) {
   for (f in fields) {
     if (is.null(model[[f]])) {

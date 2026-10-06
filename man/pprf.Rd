@@ -31,11 +31,11 @@ pprf(
 
 \item{data}{A data frame containing the variables in the formula.}
 
-\item{x}{A numeric matrix or data frame of features, one row per observation.}
+\item{x}{A numeric matrix or data frame of features, one row per observation. It must have at least one row and one column, and no missing or infinite values.}
 
-\item{y}{The response, one value per row of \code{x}: a factor or character vector of labels for classification, or a numeric vector for regression.}
+\item{y}{The response, one value per row of \code{x}: a factor or character vector of labels for classification, or a numeric vector for regression. It must have no missing values. For classification, a character vector is converted with \code{factor()}; the groups are the factor's levels, in level order, and are treated as unordered. There must be at least as many observations as groups.}
 
-\item{mode}{Training mode: either \code{"classification"} or \code{"regression"}. When \code{NULL} (default), mode is auto-detected from \code{y}'s type — factor or character vectors trigger classification, numeric vectors trigger regression. Setting it explicitly is useful for the binary-integer-labels case (\code{mode = "classification"} with integer 0/1 labels) and for failing fast on a type mismatch (\code{mode = "regression"} with a factor \code{y} errors immediately).}
+\item{mode}{Training mode: either \code{"classification"} or \code{"regression"} (case-sensitive). When \code{NULL} (default), mode is auto-detected from \code{y}'s type — factor or character vectors trigger classification, numeric vectors trigger regression. Setting it explicitly is useful for the binary-integer-labels case (\code{mode = "classification"} with integer 0/1 labels) and for failing fast on a type mismatch (\code{mode = "regression"} with a factor \code{y} errors immediately).}
 
 \item{size}{The number of trees in the forest (default: 100).}
 
@@ -110,6 +110,11 @@ pprf(Type ~ ., data = crabs)
 # Example 6: formula interface with the `crabs` dataset with regularization
 pprf(Type ~ ., data = crabs, lambda = 0.5)
 
+}
+\references{
+Lee, Y. D., Cook, D., Park, J. and Lee, E.-K. (2013). PPtree: Projection pursuit classification tree. \emph{Electronic Journal of Statistics}, 7. \doi{10.1214/13-EJS810}
+
+da Silva, N., Cook, D. and Lee, E.-K. (2021). A projection pursuit forest algorithm for supervised classification. \emph{Journal of Computational and Graphical Statistics}, 30(4), 1168--1180. \doi{10.1080/10618600.2020.1870480}
 }
 \seealso{
 \code{\link{predict.pprf_classification}}, \code{\link{predict.pprf_regression}}, \code{\link{formula.ppmodel}}, \code{\link{oob_error}}, \code{\link{save_json}}, \code{\link{load_json}}, \code{\link{pp_rand_forest}} for parsnip integration, \code{vignette("introduction")} for a tutorial

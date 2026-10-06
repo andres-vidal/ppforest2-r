@@ -106,6 +106,40 @@ save_json(model, "model.json")
 restored <- load_json("model.json")
 ```
 
+## Relation to other packages
+
+ppforest2 implements published methods that already have an R
+implementation: projection pursuit classification trees (Lee, Cook, Park
+and Lee, 2013, <doi:10.1214/13-EJS810>) and projection pursuit forests
+(da Silva, Cook and Lee, 2021, <doi:10.1080/10618600.2020.1870480>),
+available in [`PPforest`](https://cran.r-project.org/package=PPforest) and
+[`PPtreeViz`](https://cran.r-project.org/package=PPtreeViz). It improves on
+that implementation rather than introducing a new algorithm: the method is
+implemented in C++ with multi-threaded forest training, results are
+reproducible for a given seed across operating systems, and the package
+adds experimental regression, three variable importance measures, JSON
+serialization and tidymodels integration. For single trees, the projections
+and predictions match `PPforest::PPtree_split()`; the package's tests check
+this on five datasets, and
+[`benchmarks/compare-ppforest.R`](https://github.com/andres-vidal/ppforest2-r/blob/main/benchmarks/compare-ppforest.R) times
+forest training in both packages on simulated data.
+
+[`ODRF`](https://cran.r-project.org/package=ODRF) also builds oblique trees
+and forests, and offers several ways to choose the linear combinations, of
+which projection pursuit is one. ppforest2 implements only the projection
+pursuit trees and forests described above, following the `PPforest`
+algorithm. `obliqueRF` and `oblique.tree`, two earlier oblique tree
+packages, were archived on CRAN in 2022 and 2017.
+
+## Life cycle
+
+ppforest2 is stable for classification: the interface of `pptr()`,
+`pprf()`, `predict()` and the variable importance functions is not expected
+to change, and any change to it will go through a deprecation period first.
+Regression support is experimental, and its defaults and outputs may change
+in minor releases. Results for a given seed only change in a release that
+documents the change in `NEWS.md`.
+
 ## Learning more
 
 - `vignette("introduction")` — a tutorial covering trees, forests,

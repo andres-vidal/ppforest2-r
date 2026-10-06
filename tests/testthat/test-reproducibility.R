@@ -1,3 +1,10 @@
+#' @srrstats {G5.0, G5.4, G5.4a} Models trained here are compared with golden
+#'   files produced by ppforest2-core on the iris, crab, wine and glass
+#'   datasets: configuration, tree structure and predictions. The same files
+#'   are checked by the core's own tests on Linux, macOS and Windows.
+#' @srrstats {G5.5} Every model in the tests is trained with a fixed seed.
+NULL
+
 Sys.setenv(R_TESTS = "")
 Sys.setenv(OMP_THREAD_LIMIT = "1")
 Sys.setenv(OMP_NUM_THREADS = "1")
