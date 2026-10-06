@@ -1,0 +1,36 @@
+bibentry(
+  bibtype = "Manual",
+  header = "To cite ppforest2 in publications, use:",
+  title = "{ppforest2}: Projection Pursuit Oblique Decision Trees and Random Forests",
+  author = c(person("Andrés", "Vidal"), person("Natalia", "da Silva")),
+  year = "2026",
+  note = paste("R package version", meta$Version),
+  url = "https://github.com/andres-vidal/ppforest2-r"
+)
+
+bibentry(
+  bibtype = "Article",
+  header = "Projection pursuit classification trees are described in:",
+  title = "{PPtree}: Projection Pursuit Classification Tree",
+  author = c(
+    person("Yoon Dong", "Lee"), person("Dianne", "Cook"),
+    person("Ji-won", "Park"), person("Eun-Kyung", "Lee")
+  ),
+  journal = "Electronic Journal of Statistics",
+  volume = "7",
+  year = "2013",
+  doi = "10.1214/13-EJS810"
+)
+
+bibentry(
+  bibtype = "Article",
+  header = "Projection pursuit forests are described in:",
+  title = "A Projection Pursuit Forest Algorithm for Supervised Classification",
+  author = c(person("Natalia", "da Silva"), person("Dianne", "Cook"), person("Eun-Kyung", "Lee")),
+  journal = "Journal of Computational and Graphical Statistics",
+  volume = "30",
+  number = "4",
+  pages = "1168--1180",
+  year = "2021",
+  doi = "10.1080/10618600.2020.1870480"
+)

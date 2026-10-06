@@ -18,6 +18,10 @@
 - `save_json()` appends `.json` to a path without that suffix, and returns the path it wrote.
 - Constant features are detected with a tolerance relative to the feature's magnitude when scaling variable importance, and `summary()` detects standardized data with a tolerance.
 
+## Documentation
+
+- `citation("ppforest2")` cites the package and the two papers describing the method, and `?ppforest2` documents the package.
+
 ## Packaging and build
 
 - `DESCRIPTION` lists the authors of the bundled nlohmann/json and PCG code as copyright holders, and `inst/COPYRIGHTS` gives their copyright and license.
