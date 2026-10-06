@@ -72,3 +72,43 @@ describe("predict.pptr", {
     })
   })
 })
+
+describe("predict.pptr input validation", {
+  model <- pptr(Species ~ ., data = iris, seed = 0)
+
+  it("rejects new data with a different number of features", {
+    expect_error(predict(model, as.matrix(iris[1:3, 1:3])), "3 columns, but the model was trained on 4")
+  })
+
+  it("rejects NA in new data instead of dropping the row", {
+    new_data <- iris[1:5, ]
+    new_data[2, 1] <- NA
+    expect_error(predict(model, new_data), "NA or NaN")
+  })
+
+  it("rejects Inf in new data", {
+    new_data <- as.matrix(iris[1:3, 1:4])
+    new_data[1, 1] <- Inf
+    expect_error(predict(model, new_data), "finite")
+  })
+
+  it("accepts a data frame without the response column", {
+    expect_identical(predict(model, iris[1:5, 1:4]), predict(model, iris[1:5, ]))
+  })
+
+  it("rejects a type that is not a single string", {
+    expect_error(predict(model, iris, type = c("class", "prob")), "single character string")
+  })
+
+  it("keeps every group as a level when only some are predicted", {
+    predictions <- predict(model, iris[1:3, ])
+    expect_identical(levels(predictions), levels(iris$Species))
+  })
+
+  it("checks the feature count of a model loaded without training data", {
+    path <- tempfile(fileext = ".json")
+    save_json(model, path)
+    loaded <- load_json(path)
+    expect_error(predict(loaded, as.matrix(iris[1:3, 1:3])), "trained on 4")
+  })
+})

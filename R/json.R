@@ -5,14 +5,15 @@
 #' training parameters, and optionally variable importance metrics.
 #'
 #' @param model A \code{pptr} or \code{pprf} model (inheriting from \code{ppmodel}).
-#' @param path File path to write the JSON to.
+#' @param path File path to write the JSON to. If it does not end in
+#'   \code{.json}, that suffix is appended.
 #' @param include_metrics If \code{TRUE} (default), include variable importance
 #'   and (for forests) OOB error in the output. Set to \code{FALSE} to save
 #'   only the model structure and metadata.
 #' @param ... Additional arguments (currently unused).
-#' @return Invisibly returns the file \code{path} that was written (a length-one
-#'   character string). Called for its side effect of serializing \code{model}
-#'   to a JSON file at \code{path}.
+#' @return Invisibly returns the path of the file that was written (a
+#'   length-one character string), including any appended \code{.json} suffix.
+#'   Called for its side effect of serializing \code{model} to that file.
 #' @seealso \code{\link{load_json}}, \code{\link{pptr}}, \code{\link{pprf}}
 #' @examples
 #' model <- pptr(Species ~ ., data = iris, seed = 0)
@@ -27,6 +28,12 @@ save_json <- function(model, path, ...) {
 #' @rdname save_json
 #' @export
 save_json.ppmodel <- function(model, path, include_metrics = TRUE, ...) {
+  if (!is.character(path) || length(path) != 1L || is.na(path) || !nzchar(path)) {
+    stop("`path` must be a single, non-empty file path.")
+  }
+  if (!grepl("\\.json$", path, ignore.case = TRUE)) {
+    path <- paste0(path, ".json")
+  }
   if (include_metrics && is.null(model$x)) {
     warning("Training data not available; saving without metrics.", call. = FALSE)
     include_metrics <- FALSE

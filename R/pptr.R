@@ -119,8 +119,7 @@ pptr <- function(
   model$x       <- x
   model$y       <- y
 
-  scale <- apply(x, 2, sd)
-  scale[scale == 0] <- 1
+  scale <- feature_scale(x)
 
   model$vi <- list(
     scale       = scale,
@@ -154,6 +153,7 @@ pptr <- function(
 predict.pptr_classification <- function(object, new_data = NULL, type = NULL, ...) {
   x <- process_predict_arguments(object, new_data, ...)
   if (is.null(type)) type <- "class"
+  check_prediction_type(type)
 
   if (type == "prob") {
     probs <- ppforest2_predict_tree_prob(object, x)
@@ -168,7 +168,7 @@ predict.pptr_classification <- function(object, new_data = NULL, type = NULL, ..
   }
 
   y <- ppforest2_predict_tree(object, x)
-  as.factor(object$groups[y])
+  factor(object$groups[y], levels = object$groups)
 }
 
 #' Predicts numeric responses from a pptr model (regression mode).
@@ -183,6 +183,7 @@ predict.pptr_classification <- function(object, new_data = NULL, type = NULL, ..
 predict.pptr_regression <- function(object, new_data = NULL, type = NULL, ...) {
   x <- process_predict_arguments(object, new_data, ...)
   if (is.null(type)) type <- "response"
+  check_prediction_type(type)
 
   if (type %in% c("class", "prob")) {
     stop("`type = \"", type, "\"` is not available for regression models. ",

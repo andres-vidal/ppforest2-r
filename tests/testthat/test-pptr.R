@@ -668,3 +668,62 @@ describe("pptr call capture and update()", {
     expect_true(any(grepl("pptr\\(", out)))
   })
 })
+
+describe("pptr input validation", {
+  it("rejects Inf in features", {
+    x <- matrix(c(1, Inf, 3, 4, 1, 2, 3, 4), ncol = 2)
+    expect_error(pptr(x = x, y = c("a", "a", "b", "b")), "finite")
+  })
+
+  it("rejects NA in data passed through the formula interface instead of dropping the row", {
+    df <- iris
+    df[1, 1] <- NA
+    expect_error(pptr(Species ~ ., data = df), "NA or NaN")
+  })
+
+  it("rejects data with no observations", {
+    expect_error(pptr(x = iris[0, 1:4], y = iris$Species[0]), "at least one observation")
+  })
+
+  it("rejects data with no features", {
+    expect_error(pptr(x = iris[, 0], y = iris$Species), "at least one feature")
+  })
+
+  it("rejects list columns by name in both interfaces", {
+    df <- data.frame(a = 1:6, y = factor(rep(c("u", "v"), 3)))
+    df$b <- as.list(6:1)
+    expect_error(pptr(y ~ ., data = df), "List columns are not supported: `b`")
+    expect_error(pptr(x = df[, c("a", "b")], y = df$y), "List columns are not supported: `b`")
+  })
+
+  it("accepts a numeric vector as a single feature", {
+    x <- c(1, 2, 3, 7, 8, 9)
+    model <- pptr(x = x, y = c("a", "a", "a", "b", "b", "b"), seed = 0)
+    expect_identical(ncol(model$x), 1L)
+    expect_identical(as.character(predict(model, matrix(c(1, 9)))), c("a", "b"))
+  })
+
+  it("accepts a tibble", {
+    skip_if_not_installed("tibble")
+    model_df <- pptr(Species ~ ., data = iris, seed = 0)
+    model_tbl <- pptr(Species ~ ., data = tibble::as_tibble(iris), seed = 0)
+    expect_identical(predict(model_tbl, iris), predict(model_df, iris))
+  })
+
+  it("accepts numeric columns with a non-standard class", {
+    df <- iris
+    df$Sepal.Length <- structure(df$Sepal.Length, class = c("measurement", "numeric"))
+    model <- pptr(Species ~ ., data = df, seed = 0)
+    expect_identical(predict(model, iris), predict(pptr(Species ~ ., data = iris, seed = 0), iris))
+  })
+})
+
+describe("feature_scale", {
+  it("gives constant columns a scale of 1 and keeps small but non-constant ones", {
+    x <- cbind(constant = rep(0.1, 5), small = (1:5) * 1e-9, regular = 1:5)
+    scale <- ppforest2:::feature_scale(x)
+    expect_identical(scale[["constant"]], 1)
+    expect_equal(scale[["small"]], sd((1:5) * 1e-9))
+    expect_equal(scale[["regular"]], sd(1:5))
+  })
+})
