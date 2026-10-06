@@ -26,10 +26,11 @@ stop_pure_node <- function() {
 #'
 #' @export
 stop_min_size <- function(min_size = 5L) {
-  min_size <- as.integer(min_size)
-  if (min_size < 2L) {
-    stop("`min_size` must be an integer >= 2 (a node with 0 or 1 observations is unsplittable).")
+  if (!is.numeric(min_size) || length(min_size) != 1L || is.na(min_size) ||
+      min_size != round(min_size) || min_size < 2) {
+    stop("`min_size` must be a single integer >= 2 (a node with 0 or 1 observations is unsplittable).")
   }
+  min_size <- as.integer(min_size)
   structure(
     list(name = "min_size", min_size = min_size, display_name = paste0("Min size (", min_size, ")")),
     class = "stop_strategy"
@@ -50,10 +51,10 @@ stop_min_size <- function(min_size = 5L) {
 #'
 #' @export
 stop_min_variance <- function(threshold = 0.01) {
-  threshold <- as.numeric(threshold)
-  if (threshold < 0) {
-    stop("`threshold` must be non-negative.")
+  if (!is.numeric(threshold) || length(threshold) != 1L || !is.finite(threshold) || threshold < 0) {
+    stop("`threshold` must be a single non-negative number.")
   }
+  threshold <- as.numeric(threshold)
   # Matches `MinVariance::display_name` on the C++ side, which uses
   # `defaultfloat` with precision 6 so small thresholds like 1e-6 render
   # as "1e-06" instead of rounding to "0.0000".
@@ -79,10 +80,11 @@ stop_min_variance <- function(threshold = 0.01) {
 #'
 #' @export
 stop_max_depth <- function(max_depth) {
-  max_depth <- as.integer(max_depth)
-  if (is.na(max_depth) || max_depth < 0L) {
-    stop("`max_depth` must be a non-negative integer.")
+  if (!is.numeric(max_depth) || length(max_depth) != 1L || is.na(max_depth) ||
+      max_depth != round(max_depth) || max_depth < 0) {
+    stop("`max_depth` must be a single non-negative integer.")
   }
+  max_depth <- as.integer(max_depth)
   structure(
     list(name = "max_depth", max_depth = max_depth, display_name = paste0("Max depth (", max_depth, ")")),
     class = "stop_strategy"
