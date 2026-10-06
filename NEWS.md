@@ -1,5 +1,9 @@
 # ppforest2 (development version)
 
+## Documentation
+
+- `citation("ppforest2")` cites the package and the two papers describing the method, and `?ppforest2` documents the package.
+
 ## Packaging and build
 
 - `DESCRIPTION` lists the authors of the bundled nlohmann/json and PCG code as copyright holders, and `inst/COPYRIGHTS` gives their copyright and license.
