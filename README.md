@@ -2,6 +2,7 @@
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/andres-vidal/ppforest2-r/actions/workflows/r-check.yml/badge.svg)](https://github.com/andres-vidal/ppforest2-r/actions/workflows/r-check.yml)
+[![Codecov](https://codecov.io/gh/andres-vidal/ppforest2-r/graph/badge.svg)](https://app.codecov.io/gh/andres-vidal/ppforest2-r)
 [![CRAN status](https://www.r-pkg.org/badges/version/ppforest2)](https://CRAN.R-project.org/package=ppforest2)
 [![Project Status: Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 <!-- badges: end -->
