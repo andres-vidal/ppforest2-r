@@ -1,0 +1,3 @@
+src/core/** linguist-vendored
+inst/include/nlohmann/** linguist-vendored
+inst/include/pcg_*.hpp linguist-vendored
