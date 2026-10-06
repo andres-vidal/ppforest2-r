@@ -1,3 +1,21 @@
+# ppforest2 (development version)
+
+## Bug fixes
+
+- `predict()` errors when `new_data` has a different number of columns from the training data. It used to return predictions computed from mismatched columns.
+- `predict()` errors when `new_data` contains `NA`, `NaN` or infinite values. A data frame row with a missing value used to be dropped silently, so fewer predictions than rows were returned.
+- `pptr()` and `pprf()` error on missing values in `data` passed through the formula interface, as they already did for the matrix interface. Rows with missing values used to be dropped silently.
+- `pptr()` and `pprf()` error on infinite values in the features.
+- Class predictions from `predict()` keep every group of the model as a factor level, including groups that are not predicted.
+- `stop_min_size()`, `stop_min_variance()` and `stop_max_depth()` error with a clear message when their argument is not a single value of the right type, instead of R's "the condition has length > 1" or silently truncating a non-integer.
+
+## Improvements
+
+- `predict()` accepts a data frame without the response column for models trained through the formula interface.
+- `pptr()` and `pprf()` reject empty data and list columns with explicit messages.
+- `save_json()` appends `.json` to a path without that suffix, and returns the path it wrote.
+- Constant features are detected with a tolerance relative to the feature's magnitude when scaling variable importance, and `summary()` detects standardized data with a tolerance.
+
 # ppforest2 0.1.3
 
 ## New features

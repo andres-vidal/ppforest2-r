@@ -199,18 +199,83 @@ process_predict_arguments <- function(object, new_data, ...) {
     new_data <- list(...)[[1]]
   }
 
-  # Only run model.matrix when `new_data` is a data.frame — that's what
-  # model.matrix actually needs. If the caller already handed us a numeric
-  # matrix (e.g. `predict(fit, fit$x)` or a hand-prepared design matrix),
-  # accept it as-is. Previously this path errored with "data must be a
-  # data.frame, not a matrix or an array" whenever the model was fit via
-  # the formula interface, which is surprising and blocks any downstream
-  # generic that wants to predict on `model$x` (notably `fitted()`).
+  # A data frame goes through the model's formula, without its response, so
+  # it does not need to contain the response column. A matrix is used as is,
+  # which is what `fitted()` relies on to predict on `model$x`.
   if (!is.null(object$formula) && is.data.frame(new_data)) {
-    new_data <- model.matrix(object$formula, new_data)
+    predictors <- stats::delete.response(stats::terms(object$formula))
+    frame <- stats::model.frame(predictors, new_data, na.action = stats::na.pass)
+    new_data <- stats::model.matrix(predictors, frame)
   }
 
-  as.matrix(new_data)
+  x <- as.matrix(new_data)
+  check_new_data(x, n_model_features(object))
+  x
+}
+
+# Per-feature standard deviations used to scale variable importance. A
+# constant column has a standard deviation of zero up to rounding error, which
+# is detected relative to the column's magnitude; it gets a scale of 1 so its
+# coefficient is reported unscaled.
+feature_scale <- function(x) {
+  scale <- apply(x, 2, stats::sd)
+  tolerance <- sqrt(.Machine$double.eps) * apply(abs(x), 2, max)
+  scale[scale <= tolerance] <- 1
+  scale
+}
+
+# `type` in predict() is a single, case-sensitive string; the methods check
+# which values they support.
+check_prediction_type <- function(type) {
+  if (!is.character(type) || length(type) != 1L || is.na(type)) {
+    stop("`type` must be a single character string.", call. = FALSE)
+  }
+}
+
+# Number of features the model was trained on: the columns of the stored
+# training data, or the length of the variable-importance scale vector for a
+# model loaded from JSON without training data. NA when neither is available.
+n_model_features <- function(object) {
+  if (!is.null(object$x)) {
+    return(ncol(object$x))
+  }
+  if (!is.null(object$vi$scale)) {
+    return(length(object$vi$scale))
+  }
+  NA_integer_
+}
+
+# Checks the feature matrix passed to predict(): numeric, the same number of
+# columns the model was trained on, and only finite values.
+check_new_data <- function(x, n_features) {
+  if (!is.numeric(x)) {
+    stop("All columns in `new_data` must be numeric.")
+  }
+  if (!is.na(n_features) && ncol(x) != n_features) {
+    stop(
+      "`new_data` has ", ncol(x), " columns, but the model was trained on ",
+      n_features, " features."
+    )
+  }
+  if (anyNA(x)) {
+    stop("`new_data` must not contain NA or NaN values.")
+  }
+  if (!all(is.finite(x))) {
+    stop("`new_data` must contain only finite values (no Inf / -Inf).")
+  }
+}
+
+# List columns cannot become a numeric feature matrix, so they are rejected by
+# name before any conversion.
+check_no_list_columns <- function(data) {
+  list_columns <- names(data)[vapply(data, is.list, logical(1))]
+  if (length(list_columns) > 0L) {
+    stop(
+      "List columns are not supported: ",
+      paste0("`", list_columns, "`", collapse = ", "),
+      ". Convert them to numeric vectors before training."
+    )
+  }
 }
 
 resolve_model_data <- function(formula, data, x, y, mode = NULL) {
@@ -224,14 +289,30 @@ resolve_model_data <- function(formula, data, x, y, mode = NULL) {
     }
 
     formula <- update(formula(terms(formula, data = data)), . ~ . - 1)
+    check_no_list_columns(data[intersect(all.vars(formula), names(data))])
 
-    y <- model.response(model.frame(formula, data))
-    x <- model.matrix(formula, data, response = TRUE)
+    # `na.pass` keeps rows with missing values so that the checks below
+    # reject them, instead of the default `na.omit` dropping them silently.
+    frame <- model.frame(formula, data, na.action = stats::na.pass)
+    y <- model.response(frame)
+    x <- model.matrix(formula, frame)
   } else if (is.null(x) || is.null(y)) {
     stop("For the matrix interface, both `x` and `y` must be provided.")
   }
 
+  if (is.data.frame(x)) {
+    check_no_list_columns(x)
+  }
+
   x <- as.matrix(x)
+
+  if (nrow(x) == 0L) {
+    stop("The training data must have at least one observation.")
+  }
+
+  if (ncol(x) == 0L) {
+    stop("The training data must have at least one feature.")
+  }
 
   if (!is.numeric(x)) {
     stop("All columns in `x` must be numeric.")
@@ -239,6 +320,10 @@ resolve_model_data <- function(formula, data, x, y, mode = NULL) {
 
   if (anyNA(x)) {
     stop("`x` must not contain NA or NaN values.")
+  }
+
+  if (!all(is.finite(x))) {
+    stop("`x` must contain only finite values (no Inf / -Inf).")
   }
 
   # Mode resolution. Three sources of truth, in priority order:

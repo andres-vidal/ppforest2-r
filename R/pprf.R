@@ -187,8 +187,7 @@ pprf <- function(
 
   # Cheap, always-available VI fields. Expensive OOB-based importances
   # (`permuted_importance()`, `weighted_importance()`) compute lazily.
-  scale <- apply(x, 2, sd)
-  scale[scale == 0] <- 1
+  scale <- feature_scale(x)
   model$vi <- list(
     scale       = scale,
     projections = ppforest2_vi_projections_forest(model, ncol(x), scale)
@@ -226,6 +225,7 @@ pprf <- function(
 predict.pprf_classification <- function(object, new_data = NULL, type = NULL, ...) {
   x <- process_predict_arguments(object, new_data, ...)
   if (is.null(type)) type <- "class"
+  check_prediction_type(type)
 
   if (type == "prob") {
     probs <- ppforest2_predict_forest_prob(object, x)
@@ -240,7 +240,7 @@ predict.pprf_classification <- function(object, new_data = NULL, type = NULL, ..
   }
 
   y <- ppforest2_predict_forest(object, x)
-  as.factor(object$groups[y])
+  factor(object$groups[y], levels = object$groups)
 }
 
 #' Predicts numeric responses from a pprf model (regression mode).
@@ -255,6 +255,7 @@ predict.pprf_classification <- function(object, new_data = NULL, type = NULL, ..
 predict.pprf_regression <- function(object, new_data = NULL, type = NULL, ...) {
   x <- process_predict_arguments(object, new_data, ...)
   if (is.null(type)) type <- "response"
+  check_prediction_type(type)
 
   if (type %in% c("class", "prob")) {
     stop("`type = \"", type, "\"` is not available for regression models. ",
@@ -430,7 +431,7 @@ summary.pprf_regression <- function(object, ...) {
   names(tbl)[2] <- "\u03c3"
   print(tbl)
 
-  if (!all(model$vi$scale == 1)) {
+  if (!isTRUE(all.equal(unname(model$vi$scale), rep(1, length(model$vi$scale))))) {
     cat("\nNote: Variable importance was calculated using scaled coefficients (|a_j| * \u03c3_j).\n")
     cat("Variable contributions can only be theoretically interpreted as such\n")
     cat("if the model was trained on scaled data. Scaling also changes the\n")
