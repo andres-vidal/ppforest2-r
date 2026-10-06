@@ -1,0 +1,21 @@
+ppforest2 bundles the following third-party code. Everything else is
+Copyright (c) 2024-2026 Andrés Vidal and licensed under the MIT license
+(see LICENSE).
+
+nlohmann/json 3.11.3
+  Files:     inst/include/nlohmann/
+  Copyright: 2013-2023 Niels Lohmann <https://nlohmann.me>
+  License:   MIT
+  Source:    https://github.com/nlohmann/json
+
+  The headers are modified in two non-functional ways: every
+  "#pragma GCC/clang diagnostic ignored" line is removed, and json.hpp is
+  wrapped in a _Pragma guard that silences the libc++
+  char_traits<unsigned char> deprecation warning.
+
+PCG random number generation 0.98.1
+  Files:     inst/include/pcg_extras.hpp, inst/include/pcg_random.hpp,
+             inst/include/pcg_uint128.hpp
+  Copyright: 2014-2017 Melissa O'Neill and PCG Project contributors
+  License:   MIT OR Apache-2.0, used here under the MIT license
+  Source:    https://github.com/imneme/pcg-cpp
