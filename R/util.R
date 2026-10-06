@@ -364,14 +364,10 @@ resolve_model_data <- function(formula, data, x, y, mode = NULL) {
   }
 
   if (is_regression) {
-    ord <- order(y)
-    x_sorted <- x[ord, , drop = FALSE]
-    y_sorted <- as.numeric(y[ord])
-
     return(
       list(
-        x = x_sorted,
-        y = as.matrix(y_sorted),
+        x = x,
+        y = as.matrix(as.numeric(y)),
         groups = character(0),
         formula = formula,
         mode = "regression"
