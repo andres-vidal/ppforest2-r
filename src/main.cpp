@@ -5,6 +5,7 @@
 
 #include <nlohmann/json.hpp>
 #include <algorithm>
+#include <numeric>
 #include <fstream>
 
 // [[Rcpp::depends(RcppEigen)]]
@@ -46,35 +47,52 @@ int ppforest2_proportion_to_count(double p, int total) {
 //     (ClassificationTree's invariant); regression expects `y` sorted
 //     ascending (ByCutpoint's `compute_init` contract).
 
+namespace {
+  // Positions of the rows in ascending order of `y`, keeping the input order
+  // among equal values.
+  std::vector<int> stable_order(OutcomeVector const& y) {
+    std::vector<int> order(static_cast<std::size_t>(y.size()));
+    std::iota(order.begin(), order.end(), 0);
+    std::stable_sort(order.begin(), order.end(), [&y](int i, int j) { return y(i) < y(j); });
+    return order;
+  }
+
+  // A forest records each tree's bootstrap sample as row positions in the
+  // matrix it was trained on. Maps them back to positions in the rows as given,
+  // so that OOB results computed from `model$x` refer to the same observations.
+  void restore_sample_indices(Model& model, std::vector<int> const& order) {
+    auto* forest = dynamic_cast<Forest*>(&model);
+    if (forest == nullptr) {
+      return;
+    }
+    for (auto& tree : forest->trees) {
+      for (int& index : tree->sample_indices) {
+        index = order[static_cast<std::size_t>(index)];
+      }
+    }
+  }
+}
+
 // [[Rcpp::export]]
 Model::Ptr ppforest2_train(TrainingSpec::Ptr spec, FeatureMatrix x, OutcomeVector y) {
+  // Training needs the rows sorted by the response: grouped in ascending
+  // group-id order for classification (the form `GroupPartition` and
+  // `Grouping::init` require and the CLI's `read_sorted` produces), and in
+  // ascending order for regression (ByCutpoint's `compute_init` contract). The
+  // rows are sorted with a stable sort, which leaves already-sorted input
+  // untouched, and the forest's bootstrap indices are mapped back to the input
+  // order afterwards, so `model$x` and `model$y` stay in the caller's order.
   if (is_classification(*spec)) {
     to_cpp_indices(y);
-
-    // Classification training needs rows grouped in ascending group-id order
-    // (group 0 occupies the first rows), the form `GroupPartition` and
-    // `Grouping::init` require and the CLI's `read_sorted` produces. Sort the
-    // cast-to-int codes ascending unless they already are, casting back so `x`
-    // and `y` stay in lockstep. A stable sort of already-ascending data is a
-    // no-op, so this matches the regression branch below and leaves
-    // already-grouped inputs untouched.
-    GroupIdVector y_int = y.cast<GroupId>();
-    if (!std::is_sorted(y_int.data(), y_int.data() + y_int.size())) {
-      sort(x, y_int);
-    }
-
-    OutcomeVector y_out = y_int.cast<Outcome>();
-    return Model::train(*spec, x, y_out);
   }
 
-  // Regression: ByCutpoint's median split needs y-sorted rows. The R-side
-  // `resolve_model_data` already sorts, but mirror the classification
-  // defensive sort so any caller that forgets is still correct.
-  if (!std::is_sorted(y.data(), y.data() + y.size())) {
-    sort(x, y);
-  }
+  std::vector<int> const order = stable_order(y);
+  FeatureMatrix sorted_x = x(order, Eigen::indexing::all);
+  OutcomeVector sorted_y = y(order);
 
-  return Model::train(*spec, x, y);
+  Model::Ptr model = Model::train(*spec, sorted_x, sorted_y);
+  restore_sample_indices(*model, order);
+  return model;
 }
 
 // [[Rcpp::export]]
