@@ -31,9 +31,9 @@ pprf(
 
 \item{data}{A data frame containing the variables in the formula.}
 
-\item{x}{A matrix containing the features for each observation.}
+\item{x}{A numeric matrix or data frame of features, one row per observation.}
 
-\item{y}{A matrix containing the labels for each observation.}
+\item{y}{The response, one value per row of \code{x}: a factor or character vector of labels for classification, or a numeric vector for regression.}
 
 \item{mode}{Training mode: either \code{"classification"} or \code{"regression"}. When \code{NULL} (default), mode is auto-detected from \code{y}'s type — factor or character vectors trigger classification, numeric vectors trigger regression. Setting it explicitly is useful for the binary-integer-labels case (\code{mode = "classification"} with integer 0/1 labels) and for failing fast on a type mismatch (\code{mode = "regression"} with a factor \code{y} errors immediately).}
 
