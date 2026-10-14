@@ -11,8 +11,20 @@
 - Class predictions from `predict()` keep every group of the model as a factor level, including groups that are not predicted.
 - `stop_min_size()`, `stop_min_variance()` and `stop_max_depth()` error with a clear message when their argument is not a single value of the right type, instead of R's "the condition has length > 1" or silently truncating a non-integer.
 
+## Documentation
+
+- `?pptr` and `?pprf` have an "Input data" section on how the formula becomes a feature matrix, the accepted predictor types, the transformations applied, the assumptions and their consequences, and the names kept; and they list the elements of the returned model.
+- `?residuals.ppmodel` explains that the residuals are in-sample, and how to get out-of-bag errors.
+- `benchmarks/scaling.R`, in the repository, measures how training time grows with the numbers of observations and variables.
+- The introduction vignette has a terminology section defining the statistical terms the package uses.
+- The README describes how the package relates to `PPforest` and other oblique tree packages, and has a life cycle statement.
+- `?pptr` and `?pprf` list the method's references, and describe the accepted types of `x` and `y`, their lengths, and how a factor response's levels become the groups.
+- `benchmarks/compare-ppforest.R`, in the repository, times forest training in ppforest2 and `PPforest` on simulated data.
+
 ## Improvements
 
+- `pptr()` and `pprf()` warn when features are perfectly collinear, which makes the LDA index (`lambda = 0`) singular, and when a feature is perfectly collinear with a regression response.
+- `model$vi`, `projection_importance()`, `weighted_importance()` and `permuted_importance()` return vectors named by feature, including for models loaded with `load_json()`.
 - `predict()` accepts a data frame without the response column for models trained through the formula interface.
 - `pptr()` and `pprf()` reject empty data and list columns with explicit messages.
 - `save_json()` appends `.json` to a path without that suffix, and returns the path it wrote.

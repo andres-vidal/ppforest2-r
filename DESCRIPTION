@@ -37,6 +37,7 @@ Suggests:
     knitr,
     parsnip,
     patchwork,
+    PPforest,
     rlang,
     rmarkdown,
     rsample,

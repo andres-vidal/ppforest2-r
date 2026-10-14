@@ -11,12 +11,15 @@ NULL
 # were persisted during training-time save.
 # ---------------------------------------------------------------------------
 
-# Create a fresh cache environment.
+#' Create a fresh cache environment.
+#' @noRd
 .new_cache <- function() new.env(parent = emptyenv())
 
-# Return the cached value for `key`, computing via `compute_fn` on first access.
-# Falls back to uncached compute if `model$.cache` is missing (e.g. models
-# assembled manually in tests).
+#' Return the cached value for `key`, computing it with `compute_fn` on first access.
+#'
+#' Computes without caching when `model$.cache` is missing, for example in
+#' models assembled manually in tests.
+#' @noRd
 .cached_or_compute <- function(model, key, compute_fn) {
   cache <- model$.cache
   if (is.null(cache)) return(compute_fn())
@@ -26,8 +29,10 @@ NULL
   get(key, envir = cache, inherits = FALSE)
 }
 
-# Stash a pre-computed value directly into the cache (used by load_json to
-# preserve OOB metrics saved during training-time serialization).
+#' Store a precomputed value in the cache.
+#'
+#' Used by `load_json()` to keep the OOB metrics saved at training time.
+#' @noRd
 .prime_cache <- function(model, key, value) {
   cache <- model$.cache
   if (is.null(cache)) return(invisible(NULL))
@@ -247,7 +252,7 @@ permuted_importance.pprf <- function(model) {
   # by unifying `model$y` with the continuous response in `validate_data()`.
   .cached_or_compute(model, "permuted_importance", function() {
     .require_training_data(model, c("x", "y"))
-    ppforest2_vi_permuted_forest(model, model$x, model$y, model$seed)
+    stats::setNames(ppforest2_vi_permuted_forest(model, model$x, model$y, model$seed), colnames(model$x))
   })
 }
 
@@ -286,7 +291,7 @@ weighted_importance.pprf <- function(model) {
   # mode-correct for both classification and regression.
   .cached_or_compute(model, "weighted_importance", function() {
     .require_training_data(model, c("x", "y"))
-    ppforest2_vi_weighted_forest(model, model$x, model$y, model$vi$scale)
+    stats::setNames(ppforest2_vi_weighted_forest(model, model$x, model$y, model$vi$scale), colnames(model$x))
   })
 }
 
@@ -336,6 +341,8 @@ projection_importance.ppmodel <- function(model) {
 #' @param x A \code{pptr} or \code{pprf} model.
 #' @param ... Unused.
 #' @return The formula the model was trained with, or `NULL` for matrix-interface fits.
+#' @srrstats {RE4.4} `formula()` returns the model formula, or `NULL` for the
+#'   matrix interface.
 #' @export
 formula.ppmodel <- function(x, ...) {
   x$formula
@@ -352,6 +359,7 @@ formula.ppmodel <- function(x, ...) {
 #' @param ... Unused.
 #' @return Integer scalar. Returns \code{NA_integer_} for models loaded from
 #'   JSON without their original training data.
+#' @srrstats {RE4.5} `nobs()` returns the number of training observations.
 #' @export
 nobs.ppmodel <- function(object, ...) {
   if (is.null(object$x)) return(NA_integer_)
@@ -370,6 +378,8 @@ nobs.ppmodel <- function(object, ...) {
 #' @return A factor (classification) or numeric vector (regression), length
 #'   equal to the number of training observations.
 #' @seealso \code{\link{residuals.ppmodel}}, \code{\link{oob_predictions}}
+#' @srrstats {RE4.9} `fitted()` returns the model's predictions for its training
+#'   data, in the order of the training rows.
 #' @export
 fitted.ppmodel <- function(object, ...) {
   .require_training_data(object, "x")
@@ -382,14 +392,21 @@ fitted.ppmodel <- function(object, ...) {
 
 #' Residuals from a regression ppforest2 model.
 #'
-#' Returns \code{y - fitted(model)}. Only defined for regression models —
-#' classification residuals have no canonical scalar form, so this method
-#' errors on classification models rather than inventing a convention.
+#' Returns \code{y - fitted(model)}: the training response minus the model's
+#' predictions for its own training data, in the order of the training rows.
+#' These are in-sample residuals, so for a forest they are smaller than its
+#' errors on new data; compare \code{oob_predictions(model)} with the response
+#' for an out-of-bag view. Only defined for regression models: classification
+#' residuals have no canonical scalar form, so this method errors on
+#' classification models.
 #'
 #' @param object A \code{pprf} or \code{pptr} regression model.
 #' @param ... Unused.
 #' @return A numeric vector of length \code{nobs(object)}.
 #' @seealso \code{\link{fitted.ppmodel}}
+#' @srrstats {RE4.10} `residuals()` returns the training response minus the
+#'   fitted values, and its documentation explains that they are in-sample and
+#'   how to obtain out-of-bag errors instead.
 #' @export
 residuals.ppmodel <- function(object, ...) {
   if (!identical(object$mode, "regression")) {
@@ -409,12 +426,12 @@ residuals.ppmodel <- function(object, ...) {
 # Internal helpers
 # ---------------------------------------------------------------------------
 
-# Throws a clear error if required training-data fields are missing on the
-# model (e.g. the model was loaded from JSON without the original x/y).
-# Distinguishes between "loaded model without data" (JSON doesn't carry x/y,
-# user should reattach) and "metrics were never computed at save time" (the
-# saved JSON had `include_metrics = FALSE`, so priming the cache was a
-# no-op and no recomputation is possible).
+#' Error clearly when an accessor needs training data the model does not have.
+#'
+#' Distinguishes a model loaded from JSON without its training data, where the
+#' user can reattach `x` and `y`, from metrics that were not saved because the
+#' JSON was written with `include_metrics = FALSE`.
+#' @noRd
 .require_training_data <- function(model, fields) {
   for (f in fields) {
     if (is.null(model[[f]])) {
