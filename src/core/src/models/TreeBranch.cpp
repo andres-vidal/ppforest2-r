@@ -1,7 +1,7 @@
 #include "models/TreeBranch.hpp"
 #include "utils/Math.hpp"
+#include "utils/UserError.hpp"
 
-#include <stdexcept>
 #include <utility>
 
 using namespace ppforest2::types;
@@ -29,11 +29,16 @@ namespace ppforest2 {
     visitor.visit(*this);
   }
 
-  Outcome TreeBranch::response() const {
-    throw std::invalid_argument("Cannot get response from a condition node");
-  }
-
   Outcome TreeBranch::predict(FeatureVector const& x) const {
+    // The dot product does not check sizes when Eigen's assertions are off, so
+    // an observation with the wrong number of features would read out of
+    // bounds. This runs once per node for every row predicted, so the message
+    // is a constant rather than one built with the counts.
+    user_error(
+        x.size() == projector.size(),
+        "The observation has a different number of features from the data the model was trained on."
+    );
+
     Feature const projected = x.dot(projector);
 
     if (projected < cutpoint) {
@@ -65,10 +70,6 @@ namespace ppforest2 {
     EqualsVisitor visitor(*this);
     other.accept(visitor);
     return visitor.result;
-  }
-
-  TreeNode::Ptr TreeBranch::clone() const {
-    return make(projector, cutpoint, lower->clone(), upper->clone(), groups, pp_index_value);
   }
 
   TreeBranch::Ptr TreeBranch::make(
