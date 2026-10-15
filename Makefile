@@ -68,7 +68,7 @@ check: build
 
 check-cran: build
 	@Rscript tools/check-suggests.R
-	@R CMD check ${TARBALL} --as-cran || exit 1
+	@R CMD check ${TARBALL} --as-cran ${CHECK_ARGS} || exit 1
 	$(fail_on_warning)
 
 install: build
