@@ -3,7 +3,8 @@
 # `object` / `new_data` appear in `set_pred(... args = list(...))`.
 utils::globalVariables(c("object", "new_data", "x", "y"))
 
-#' @keywords internal
+#' Registers the parsnip models when parsnip is installed.
+#' @noRd
 .onLoad <- function(libname, pkgname) {
   if (requireNamespace("parsnip", quietly = TRUE)) {
     register_pp_rand_forest()
