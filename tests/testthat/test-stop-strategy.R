@@ -18,6 +18,13 @@ describe("stop_min_size", {
     expect_error(stop_min_size(0L), ">= 2")
     expect_error(stop_min_size(1L), ">= 2")
   })
+
+  it("rejects values that are not a single integer", {
+    expect_error(stop_min_size(c(3, 4)), "single integer")
+    expect_error(stop_min_size("a"), "single integer")
+    expect_error(stop_min_size(NA), "single integer")
+    expect_error(stop_min_size(2.5), "single integer")
+  })
 })
 
 describe("stop_min_variance", {
@@ -47,5 +54,19 @@ describe("stop_any", {
 
   it("rejects non-stop_strategy arguments", {
     expect_error(stop_any("not a rule"), "stop_strategy")
+  })
+})
+
+describe("stop rule argument checks", {
+  it("stop_min_variance rejects values that are not a single non-negative number", {
+    expect_error(stop_min_variance(c(0.1, 0.2)), "single non-negative number")
+    expect_error(stop_min_variance(-1), "single non-negative number")
+    expect_error(stop_min_variance(Inf), "single non-negative number")
+  })
+
+  it("stop_max_depth rejects values that are not a single non-negative integer", {
+    expect_error(stop_max_depth(2.7), "single non-negative integer")
+    expect_error(stop_max_depth(c(1, 2)), "single non-negative integer")
+    expect_error(stop_max_depth(-1), "single non-negative integer")
   })
 })

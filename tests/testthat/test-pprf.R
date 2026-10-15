@@ -790,3 +790,32 @@ describe("pprf call capture and update()", {
     expect_true(any(grepl("pprf\\(", out)))
   })
 })
+
+describe("pprf with rows in any order", {
+  # The core trains on rows sorted by the response; a stable sort of `data`
+  # gives `data[grouped, ]`, so both forests are trained on the same matrix.
+  set.seed(0)
+  data <- iris[sample(nrow(iris)), ]
+  grouped <- order(data$Species)
+
+  it("computes OOB results on the same observations as for grouped rows", {
+    shuffled_model <- pprf(Species ~ ., data = data, size = 20, seed = 0)
+    grouped_model <- pprf(Species ~ ., data = data[grouped, ], size = 20, seed = 0)
+
+    expect_identical(oob_predictions(shuffled_model)[grouped], oob_predictions(grouped_model))
+    expect_identical(oob_error(shuffled_model), oob_error(grouped_model))
+    expect_identical(grouped[bag_samples(grouped_model)[[1]]], bag_samples(shuffled_model)[[1]])
+  })
+
+  it("keeps the training data in the order given", {
+    model <- pprf(Species ~ ., data = data, size = 5, seed = 0)
+    expect_identical(rownames(model$x), rownames(data))
+    expect_identical(fitted(model), predict(model, data))
+  })
+
+  it("keeps regression fitted values and residuals in the order given", {
+    model <- suppressWarnings(pprf(mpg ~ ., data = mtcars, size = 5, seed = 0))
+    expect_identical(fitted(model), predict(model, mtcars))
+    expect_equal(residuals(model), mtcars$mpg - predict(model, mtcars))
+  })
+})
