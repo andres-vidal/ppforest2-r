@@ -22,9 +22,9 @@ and (for forests) OOB error in the output. Set to \code{FALSE} to save
 only the model structure and metadata.}
 }
 \value{
-Invisibly returns the path of the file that was written (a
-  length-one character string), including any appended \code{.json} suffix.
-  Called for its side effect of serializing \code{model} to that file.
+Invisibly returns the path of the written file, as a character
+  string, including any appended \code{.json} suffix. Called for its side
+  effect of serializing \code{model} to that file.
 }
 \description{
 Serializes a \code{pptr} or \code{pprf} model to JSON format compatible

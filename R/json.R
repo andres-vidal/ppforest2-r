@@ -11,9 +11,9 @@
 #'   and (for forests) OOB error in the output. Set to \code{FALSE} to save
 #'   only the model structure and metadata.
 #' @param ... Additional arguments (currently unused).
-#' @return Invisibly returns the path of the file that was written (a
-#'   length-one character string), including any appended \code{.json} suffix.
-#'   Called for its side effect of serializing \code{model} to that file.
+#' @return Invisibly returns the path of the written file, as a character
+#'   string, including any appended \code{.json} suffix. Called for its side
+#'   effect of serializing \code{model} to that file.
 #' @seealso \code{\link{load_json}}, \code{\link{pptr}}, \code{\link{pprf}}
 #' @examples
 #' model <- pptr(Species ~ ., data = iris, seed = 0)
