@@ -675,7 +675,7 @@ describe("pptr input validation", {
     expect_error(pptr(x = x, y = c("a", "a", "b", "b")), "finite")
   })
 
-  it("rejects NA in data passed through the formula interface instead of dropping the row", {
+  it("rejects NA in data passed through the formula interface", {
     df <- iris
     df[1, 1] <- NA
     expect_error(pptr(Species ~ ., data = df), "NA or NaN")

@@ -80,7 +80,7 @@ describe("predict.pptr input validation", {
     expect_error(predict(model, as.matrix(iris[1:3, 1:3])), "3 columns, but the model was trained on 4")
   })
 
-  it("rejects NA in new data instead of dropping the row", {
+  it("rejects NA in new data", {
     new_data <- iris[1:5, ]
     new_data[2, 1] <- NA
     expect_error(predict(model, new_data), "NA or NaN")
