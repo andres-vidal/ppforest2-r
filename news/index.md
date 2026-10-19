@@ -1,5 +1,72 @@
 # Changelog
 
+## ppforest2 (development version)
+
+### Bug fixes
+
+- For forests trained on classification data whose rows are not grouped
+  by class,
+  [`oob_error()`](https://andres-vidal.github.io/ppforest2-r/reference/oob_error.md),
+  [`oob_predictions()`](https://andres-vidal.github.io/ppforest2-r/reference/oob_predictions.md),
+  [`permuted_importance()`](https://andres-vidal.github.io/ppforest2-r/reference/permuted_importance.md)
+  and
+  [`weighted_importance()`](https://andres-vidal.github.io/ppforest2-r/reference/weighted_importance.md)
+  used the wrong out-of-bag observations, because each tree’s bootstrap
+  sample referred to the rows after they were sorted for training. The
+  OOB error was too low as a result. The bootstrap samples now refer to
+  the rows in the order given.
+- For regression models, `model$x`, `model$y`,
+  [`fitted()`](https://rdrr.io/r/stats/fitted.values.html) and
+  [`residuals()`](https://rdrr.io/r/stats/residuals.html) follow the
+  order of the training rows. They used to be sorted by the response, so
+  [`fitted()`](https://rdrr.io/r/stats/fitted.values.html) did not line
+  up with the data.
+- [`predict()`](https://rdrr.io/r/stats/predict.html) errors when
+  `new_data` has a different number of columns from the training data.
+  It used to return predictions computed from mismatched columns.
+- [`predict()`](https://rdrr.io/r/stats/predict.html) errors when
+  `new_data` contains `NA`, `NaN` or infinite values. A data frame row
+  with a missing value used to be dropped silently, so fewer predictions
+  than rows were returned.
+- [`pptr()`](https://andres-vidal.github.io/ppforest2-r/reference/pptr.md)
+  and
+  [`pprf()`](https://andres-vidal.github.io/ppforest2-r/reference/pprf.md)
+  error on missing values in `data` passed through the formula
+  interface, as they already did for the matrix interface. Rows with
+  missing values used to be dropped silently.
+- [`pptr()`](https://andres-vidal.github.io/ppforest2-r/reference/pptr.md)
+  and
+  [`pprf()`](https://andres-vidal.github.io/ppforest2-r/reference/pprf.md)
+  error on infinite values in the features.
+- Class predictions from
+  [`predict()`](https://rdrr.io/r/stats/predict.html) keep every group
+  of the model as a factor level, including groups that are not
+  predicted.
+- [`stop_min_size()`](https://andres-vidal.github.io/ppforest2-r/reference/stop_min_size.md),
+  [`stop_min_variance()`](https://andres-vidal.github.io/ppforest2-r/reference/stop_min_variance.md)
+  and
+  [`stop_max_depth()`](https://andres-vidal.github.io/ppforest2-r/reference/stop_max_depth.md)
+  error with a clear message when their argument is not a single value
+  of the right type, instead of R’s “the condition has length \> 1” or
+  silently truncating a non-integer.
+
+### Improvements
+
+- [`predict()`](https://rdrr.io/r/stats/predict.html) accepts a data
+  frame without the response column for models trained through the
+  formula interface.
+- [`pptr()`](https://andres-vidal.github.io/ppforest2-r/reference/pptr.md)
+  and
+  [`pprf()`](https://andres-vidal.github.io/ppforest2-r/reference/pprf.md)
+  reject empty data and list columns with explicit messages.
+- [`save_json()`](https://andres-vidal.github.io/ppforest2-r/reference/save_json.md)
+  appends `.json` to a path without that suffix, and returns the path it
+  wrote.
+- Constant features are detected with a tolerance relative to the
+  feature’s magnitude when scaling variable importance, and
+  [`summary()`](https://rdrr.io/r/base/summary.html) detects
+  standardized data with a tolerance.
+
 ## ppforest2 0.1.3
 
 CRAN release: 2026-10-01

@@ -61,7 +61,8 @@ training parameters, and optionally variable importance metrics.</p>
 
 
 <dt id="arg-path">path<a class="anchor" aria-label="anchor" href="#arg-path"></a></dt>
-<dd><p>File path to write the JSON to.</p></dd>
+<dd><p>File path to write the JSON to. If it does not end in
+<code>.json</code>, that suffix is appended.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -76,9 +77,9 @@ only the model structure and metadata.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Invisibly returns the file <code>path</code> that was written (a length-one
-  character string). Called for its side effect of serializing <code>model</code>
-  to a JSON file at <code>path</code>.</p>
+    <p>Invisibly returns the path of the written file, as a character
+  string, including any appended <code>.json</code> suffix. Called for its side
+  effect of serializing <code>model</code> to that file.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

@@ -21,7 +21,8 @@ save_json(model, path, include_metrics = TRUE, ...)
 
 - path:
 
-  File path to write the JSON to.
+  File path to write the JSON to. If it does not end in `.json`, that
+  suffix is appended.
 
 - ...:
 
@@ -35,9 +36,9 @@ save_json(model, path, include_metrics = TRUE, ...)
 
 ## Value
 
-Invisibly returns the file `path` that was written (a length-one
-character string). Called for its side effect of serializing `model` to
-a JSON file at `path`.
+Invisibly returns the path of the written file, as a character string,
+including any appended `.json` suffix. Called for its side effect of
+serializing `model` to that file.
 
 ## See also
 
