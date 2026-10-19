@@ -358,3 +358,23 @@ describe("load_json error handling", {
     expect_error(load_json(path))
   })
 })
+
+describe("save_json file path", {
+  model <- pptr(Species ~ ., data = iris, seed = 0)
+
+  it("appends .json when the path has no suffix", {
+    path <- tempfile()
+    written <- save_json(model, path)
+    expect_identical(written, paste0(path, ".json"))
+    expect_true(file.exists(written))
+  })
+
+  it("keeps a path that already ends in .json", {
+    path <- tempfile(fileext = ".json")
+    expect_identical(save_json(model, path), path)
+  })
+
+  it("rejects a path that is not a single string", {
+    expect_error(save_json(model, c("a.json", "b.json")), "single, non-empty file path")
+  })
+})
