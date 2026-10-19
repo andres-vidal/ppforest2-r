@@ -51,11 +51,12 @@ pprf(
 
 - x:
 
-  A matrix containing the features for each observation.
+  A numeric matrix or data frame of features, one row per observation.
 
 - y:
 
-  A matrix containing the labels for each observation.
+  The response, one value per row of `x`: a factor or character vector
+  of labels for classification, or a numeric vector for regression.
 
 - mode:
 
