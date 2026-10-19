@@ -37,4 +37,4 @@ vendored here under `src/core/`.
 ## Code of Conduct
 
 By participating in this project you agree to abide by its
-[Code of Conduct](CODE_OF_CONDUCT.md).
+[Code of Conduct](../CODE_OF_CONDUCT.md).
