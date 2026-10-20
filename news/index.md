@@ -67,6 +67,19 @@
   [`summary()`](https://rdrr.io/r/base/summary.html) detects
   standardized data with a tolerance.
 
+### Documentation
+
+- `citation("ppforest2")` cites the package and the two papers
+  describing the method, and
+  [`?ppforest2`](https://andres-vidal.github.io/ppforest2-r/reference/ppforest2-package.md)
+  documents the package.
+
+### Packaging and build
+
+- `DESCRIPTION` lists the authors of the bundled nlohmann/json and PCG
+  code as copyright holders, and `inst/COPYRIGHTS` gives their copyright
+  and license.
+
 ## ppforest2 0.1.3
 
 CRAN release: 2026-10-01
