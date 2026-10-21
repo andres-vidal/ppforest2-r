@@ -15,6 +15,7 @@
 
 - The introduction vignette has a terminology section defining the statistical terms the package uses.
 - The README describes how the package relates to `PPforest` and other oblique tree packages, and the contributing guide has a life cycle statement.
+- `?pptr` and `?pprf` list the method's references, and describe the accepted types of `x` and `y`, their lengths, and how a factor response's levels become the groups.
 - A "Performance compared with PPforest" article on the package website shows the training time and memory of ppforest2 and `PPforest`, from scripts in the repository's `benchmarks/` directory that reproduce at a smaller scale the evaluation in Vidal (2026).
 
 ## Improvements

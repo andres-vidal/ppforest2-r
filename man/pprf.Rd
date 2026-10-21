@@ -31,7 +31,7 @@ pprf(
 
 \item{data}{A data frame containing the variables in the formula.}
 
-\item{x}{A numeric matrix or data frame of features, one row per observation.}
+\item{x}{A numeric matrix or data frame of features, one row per observation. It must have at least one row and one column, and no missing or infinite values.}
 
 \item{y}{The response, one value per row of \code{x}: a factor or character vector of labels for classification, or a numeric vector for regression. It must have no missing values. For classification, a character vector is converted with \code{factor()}; the groups are the factor's levels, in level order, and are treated as unordered. There must be at least as many observations as groups.}
 
