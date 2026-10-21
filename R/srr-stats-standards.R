@@ -39,5 +39,12 @@ NULL
 #'   (G5.4b).
 #' @srrstatsNA {G5.10, G5.11, G5.11a, G5.12} The package has no extended tests:
 #'   every test runs in the regular suite on data bundled with the package.
+#' @srrstatsNA {RE2.1, RE2.2} Missing values in the features or the response
+#'   are an error (G2.14a), with separate messages for `NA`/`NaN` and infinite
+#'   values. There is no option to fit with missing values, which users remove
+#'   or impute before training.
+#' @srrstatsNA {RE2.3} Projection pursuit trees are invariant to centring and
+#'   rescaling each variable (tested under RE1.4), so the package offers no
+#'   centring or offset options.
 #' @noRd
 NULL

@@ -20,6 +20,7 @@
 
 ## Improvements
 
+- `pptr()` and `pprf()` warn when features are perfectly collinear, which makes the LDA index (`lambda = 0`) singular, and when a feature is perfectly collinear with a regression response.
 - `model$vi`, `projection_importance()`, `weighted_importance()` and `permuted_importance()` return vectors named by feature, including for models loaded with `load_json()`.
 - `predict()` accepts a data frame without the response column for models trained through the formula interface.
 - `pptr()` and `pprf()` reject empty data and list columns with explicit messages.
