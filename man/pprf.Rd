@@ -33,9 +33,9 @@ pprf(
 
 \item{x}{A numeric matrix or data frame of features, one row per observation.}
 
-\item{y}{The response, one value per row of \code{x}: a factor or character vector of labels for classification, or a numeric vector for regression.}
+\item{y}{The response, one value per row of \code{x}: a factor or character vector of labels for classification, or a numeric vector for regression. It must have no missing values. For classification, a character vector is converted with \code{factor()}; the groups are the factor's levels, in level order, and are treated as unordered. There must be at least as many observations as groups.}
 
-\item{mode}{Training mode: either \code{"classification"} or \code{"regression"}. When \code{NULL} (default), mode is auto-detected from \code{y}'s type — factor or character vectors trigger classification, numeric vectors trigger regression. Setting it explicitly is useful for the binary-integer-labels case (\code{mode = "classification"} with integer 0/1 labels) and for failing fast on a type mismatch (\code{mode = "regression"} with a factor \code{y} errors immediately).}
+\item{mode}{Training mode: either \code{"classification"} or \code{"regression"} (case-sensitive). When \code{NULL} (default), mode is auto-detected from \code{y}'s type — factor or character vectors trigger classification, numeric vectors trigger regression. Setting it explicitly is useful for the binary-integer-labels case (\code{mode = "classification"} with integer 0/1 labels) and for failing fast on a type mismatch (\code{mode = "regression"} with a factor \code{y} errors immediately).}
 
 \item{size}{The number of trees in the forest (default: 100).}
 
