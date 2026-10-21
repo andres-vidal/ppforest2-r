@@ -302,6 +302,9 @@ check_new_data <- function(x, n_features) {
 }
 
 #' Reject list columns by name before any conversion.
+#'
+#' @srrstats {G2.12} List columns cannot become a numeric feature matrix, so
+#'   they are rejected with an error that names them, in both interfaces.
 #' @noRd
 check_no_list_columns <- function(data) {
   list_columns <- names(data)[vapply(data, is.list, logical(1))]
@@ -329,6 +332,15 @@ check_no_list_columns <- function(data) {
 #'   `y` in `pptr()`.
 #' @srrstats {G2.3, G2.3a} `mode` must be `NULL` or one of
 #'   `"classification"` and `"regression"`.
+#' @srrstats {G2.5} A factor response is treated as unordered, with its levels
+#'   as the groups in level order, as documented under `y` in `pptr()`.
+#' @srrstats {G2.6, G2.7, G2.8, G2.11} Matrices, data frames, tibbles and
+#'   numeric vectors are all converted to one numeric matrix before reaching
+#'   the C++ core; numeric columns with non-standard classes are accepted.
+#' @srrstats {G2.9} No conversion loses information: a character response
+#'   becomes a factor with the same labels, and numeric columns keep their
+#'   names. Inputs that would need a lossy conversion, such as non-numeric
+#'   features, are an error.
 #' @noRd
 resolve_model_data <- function(formula, data, x, y, mode = NULL) {
   if (!is.null(formula) && !is.null(data)) {
