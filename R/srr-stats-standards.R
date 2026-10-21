@@ -46,5 +46,15 @@ NULL
 #' @srrstatsNA {RE2.3} Projection pursuit trees are invariant to centring and
 #'   rescaling each variable (tested under RE1.4), so the package offers no
 #'   centring or offset options.
+#' @srrstatsNA {RE4.2, RE4.3, RE4.6} A tree or forest has no regression
+#'   coefficients, so there are no coefficients, confidence intervals on them,
+#'   or variance-covariance matrix to return. Each split's projector is stored
+#'   in the tree, and its use is summarised by variable importance.
+#' @srrstatsNA {RE4.12} The package applies no transformations to the input data
+#'   that would need an inverse.
+#' @srrstatsNA {RE4.14, RE4.15, RE6.3, RE7.4} The models do not forecast, so there
+#'   are no forecast horizons or forecast errors.
+#' @srrstatsNA {RE4.16} The models do not fit distinct responses for categorical
+#'   groups of observations.
 #' @noRd
 NULL

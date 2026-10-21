@@ -75,9 +75,14 @@ grouping always yields a 2-group partition, so no binarization is needed).}
 \code{\link{leaf_mean_response}()} for regression.}
 }
 \value{
-A \code{pprf} model. Its S3 class vector is
+A \code{pprf} model: a list with S3 class
   \code{c("pprf_classification", "pprf", "ppmodel")} or
-  \code{c("pprf_regression", "pprf", "ppmodel")} depending on the mode.
+  \code{c("pprf_regression", "pprf", "ppmodel")}, depending on the mode.
+  It has the same elements as a \code{\link{pptr}} model, with
+  \code{trees} in place of \code{root}: the bagged trees, each with the
+  0-based row positions of its bootstrap sample in \code{sample_indices}.
+  \code{degenerate} is \code{TRUE} when some tree has a node that could not
+  be split.
 }
 \description{
 This function trains a Random Forest of Projection-Pursuit oblique decision tree using either a formula and data frame interface or a matrix-based interface. When using the formula interface, specify the model formula and the data frame containing the variables. For the matrix-based interface, provide matrices for the features and labels directly.

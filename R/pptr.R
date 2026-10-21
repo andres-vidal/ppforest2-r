@@ -64,9 +64,18 @@ NULL
 #' \code{x}, and the column names in its variable importance. Predictions are
 #' returned in the order of the rows of \code{new_data}, without row names.
 #'
-#' @return A \code{pptr} model. Its S3 class vector is
+#' @return A \code{pptr} model: a list with S3 class
 #'   \code{c("pptr_classification", "pptr", "ppmodel")} or
-#'   \code{c("pptr_regression", "pptr", "ppmodel")} depending on the mode.
+#'   \code{c("pptr_regression", "pptr", "ppmodel")}, depending on the mode.
+#'   Its elements include \code{root} (the fitted tree); \code{x} and
+#'   \code{y} (the training features and response, in the order given, with
+#'   \code{y} holding group indices for classification); \code{groups} (the
+#'   class labels); \code{mode}; \code{formula} (\code{NULL} for the matrix
+#'   interface); \code{training_spec} (the strategies used); \code{seed};
+#'   \code{degenerate} (\code{TRUE} when some node could not be split, see
+#'   Input data); and \code{vi} (variable importance). Where an accessor
+#'   exists, such as \code{fitted()}, \code{residuals()}, \code{nobs()} or
+#'   \code{formula()}, prefer it to the element.
 #' @seealso \code{\link{predict.pptr_classification}}, \code{\link{predict.pptr_regression}}, \code{\link{formula.ppmodel}}, \code{\link{print.pptr}}, \code{\link{save_json}}, \code{\link{load_json}}, \code{\link{pp_tree}} for parsnip integration
 #' @references
 #' Lee, Y. D., Cook, D., Park, J. and Lee, E.-K. (2013). PPtree: Projection pursuit classification tree. \emph{Electronic Journal of Statistics}, 7. \doi{10.1214/13-EJS810}
@@ -88,6 +97,9 @@ NULL
 #' @srrstats {RE3.2, RE3.3} The stopping rules, which decide when a node stops
 #'   splitting, have documented defaults and are set with the `stop` argument;
 #'   `max_retries` in `pprf()` sets how often a degenerate tree is retrained.
+#' @srrstats {RE4.0, RE4.7, RE4.8, RE4.13} The model object has its own S3
+#'   classes and holds the training features and response, their metadata (the
+#'   group labels and feature names) and the degenerate-node indicator.
 #' @srrstats {G2.4a} `seed` must be integer-valued and is converted with
 #'   `as.integer()` before reaching the C++ core.
 #' @examples
@@ -263,6 +275,7 @@ predict.pptr_regression <- function(object, new_data = NULL, type = NULL, ...) {
 #' @return Invisibly returns the input \code{pptr} model \code{x} (unchanged).
 #'   Called for its side effect of printing the tree structure -- the oblique
 #'   split rules and leaf predictions -- to the console.
+#' @srrstats {RE4.17} `print()` shows the training specification and the tree.
 #' @export
 print.pptr <- function(x, ...) {
   cat("\n")

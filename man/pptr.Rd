@@ -57,9 +57,18 @@ grouping always yields a 2-group partition, so no binarization is needed).}
 \code{\link{leaf_mean_response}()} for regression.}
 }
 \value{
-A \code{pptr} model. Its S3 class vector is
+A \code{pptr} model: a list with S3 class
   \code{c("pptr_classification", "pptr", "ppmodel")} or
-  \code{c("pptr_regression", "pptr", "ppmodel")} depending on the mode.
+  \code{c("pptr_regression", "pptr", "ppmodel")}, depending on the mode.
+  Its elements include \code{root} (the fitted tree); \code{x} and
+  \code{y} (the training features and response, in the order given, with
+  \code{y} holding group indices for classification); \code{groups} (the
+  class labels); \code{mode}; \code{formula} (\code{NULL} for the matrix
+  interface); \code{training_spec} (the strategies used); \code{seed};
+  \code{degenerate} (\code{TRUE} when some node could not be split, see
+  Input data); and \code{vi} (variable importance). Where an accessor
+  exists, such as \code{fitted()}, \code{residuals()}, \code{nobs()} or
+  \code{formula()}, prefer it to the element.
 }
 \description{
 This function trains a Projection-Pursuit oblique decision tree using either a formula and data frame interface or a matrix-based interface. When using the formula interface, specify the model formula and the data frame containing the variables. For the matrix-based interface, provide matrices for the features and labels directly.
