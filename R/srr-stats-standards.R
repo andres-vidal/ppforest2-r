@@ -15,6 +15,8 @@
 #' @srrstats {G1.6} `benchmarks/compare-ppforest.R` times forest training in
 #'   ppforest2 and `PPforest` on simulated data, which is the basis of the
 #'   performance claim in the README.
+#' @srrstats {RE5.0} `benchmarks/scaling.R` measures how training time grows with
+#'   the number of observations and of variables.
 #' @noRd
 NULL
 

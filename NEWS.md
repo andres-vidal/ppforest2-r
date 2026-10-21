@@ -15,6 +15,7 @@
 
 - `?pptr` and `?pprf` have an "Input data" section on how the formula becomes a feature matrix, the accepted predictor types, the transformations applied, the assumptions and their consequences, and the names kept; and they list the elements of the returned model.
 - `?residuals.ppmodel` explains that the residuals are in-sample, and how to get out-of-bag errors.
+- `benchmarks/scaling.R`, in the repository, measures how training time grows with the numbers of observations and variables.
 - The introduction vignette has a terminology section defining the statistical terms the package uses.
 - The README describes how the package relates to `PPforest` and other oblique tree packages, and the contributing guide has a life cycle statement.
 - `?pptr` and `?pprf` list the method's references, and describe the accepted types of `x` and `y`, their lengths, and how a factor response's levels become the groups.
