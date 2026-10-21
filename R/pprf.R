@@ -42,6 +42,11 @@ NULL
 #'   \code{c("pprf_classification", "pprf", "ppmodel")} or
 #'   \code{c("pprf_regression", "pprf", "ppmodel")} depending on the mode.
 #' @seealso \code{\link{predict.pprf_classification}}, \code{\link{predict.pprf_regression}}, \code{\link{formula.ppmodel}}, \code{\link{oob_error}}, \code{\link{save_json}}, \code{\link{load_json}}, \code{\link{pp_rand_forest}} for parsnip integration, \code{vignette("introduction")} for a tutorial
+#' @references
+#' Lee, Y. D., Cook, D., Park, J. and Lee, E.-K. (2013). PPtree: Projection pursuit classification tree. \emph{Electronic Journal of Statistics}, 7. \doi{10.1214/13-EJS810}
+#'
+#' da Silva, N., Cook, D. and Lee, E.-K. (2021). A projection pursuit forest algorithm for supervised classification. \emph{Journal of Computational and Graphical Statistics}, 30(4), 1168--1180. \doi{10.1080/10618600.2020.1870480}
+#'
 #' @examples
 #'
 #' # Example 1: formula interface with the `iris` dataset
@@ -402,8 +407,11 @@ summary.pprf_regression <- function(object, ...) {
 # Helpers -- these are for `summary()`, not part of the public API.
 # ---------------------------------------------------------------------------
 
-# Print a VI table. For forests, `include_oob_importances` pulls the lazy
-# `weighted` and `permuted` importances. For trees, these are absent.
+#' Print a variable importance table.
+#'
+#' For forests, `include_oob_importances` adds the lazily computed weighted
+#' and permuted importances, which trees do not have.
+#' @noRd
 .print_vi_table <- function(model, include_oob_importances) {
   cat("Variable Importance:\n\n")
 

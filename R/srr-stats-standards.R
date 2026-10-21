@@ -9,14 +9,6 @@
 #'
 #' @srrstatsVerbose TRUE
 #'
-#' @srrstatsTODO {G1.0} *Statistical Software should list at least one primary reference from published academic literature.* 
-#' @srrstatsTODO {G1.1} *Statistical Software should document whether the algorithm(s) it implements are:* - *The first implementation of a novel algorithm*; or - *The first implementation within **R** of an algorithm which has previously been implemented in other languages or contexts*; or - *An improvement on other implementations of similar algorithms in **R***. 
-#' @srrstatsTODO {G1.2} *Statistical Software should include a* Life Cycle Statement *describing current and anticipated future states of development.* 
-#' @srrstatsTODO {G1.3} *All statistical terminology should be clarified and unambiguously defined.* 
-#' @srrstatsTODO {G1.4} *Software should use [`roxygen2`](https://roxygen2.r-lib.org/) to document all functions.*
-#' @srrstatsTODO {G1.4a} *All internal (non-exported) functions should also be documented in standard [`roxygen2`](https://roxygen2.r-lib.org/) format, along with a final `@noRd` tag to suppress automatic generation of `.Rd` files or [`@keywords internal`](https://roxygen2.r-lib.org/reference/tags-index-crossref.html?q=keywords%20internal#null) if documentation is still desired.* 
-#' @srrstatsTODO {G1.5} *Software should include all code necessary to reproduce results which form the basis of performance claims made in associated publications.* 
-#' @srrstatsTODO {G1.6} *Software should include code necessary to compare performance claims with alternative implementations in other R packages.* 
 #' @srrstatsTODO {G2.0} *Implement assertions on lengths of inputs, particularly through asserting that inputs expected to be single- or multi-valued are indeed so.*
 #' @srrstatsTODO {G2.0a} Provide explicit secondary documentation of any expectations on lengths of inputs
 #' @srrstatsTODO {G2.1} *Implement assertions on types of inputs (see the initial point on nomenclature above).*
@@ -77,6 +69,16 @@
 #' @srrstatsTODO {G5.11} *Where extended tests require large data sets or other assets, these should be provided for downloading and fetched as part of the testing workflow.*
 #' @srrstatsTODO {G5.11a} *When any downloads of additional data necessary for extended tests fail, the tests themselves should not fail, rather be skipped and implicitly succeed with an appropriate diagnostic message.*
 #' @srrstatsTODO {G5.12} *Any conditions necessary to run extended tests such as platform requirements, memory, expected runtime, and artefacts produced that may need manual inspection, should be described in developer documentation such as a `CONTRIBUTING.md` or `tests/README.md` file.*
+#' @srrstats {G1.1} The README section "Relation to other packages" states that
+#'   the package improves on an existing R implementation, `PPforest`, of
+#'   published algorithms, and how it differs from other oblique tree packages.
+#' @srrstats {G1.2} The "Life cycle" section of `.github/CONTRIBUTING.md` is
+#'   the life cycle statement.
+#' @srrstats {G1.3} The "Terminology" section of the introduction vignette
+#'   defines the statistical terms the package uses.
+#' @srrstats {G1.6} `benchmarks/compare-ppforest.R` times forest training in
+#'   ppforest2 and `PPforest` on simulated data, which is the basis of the
+#'   performance claim in the README.
 #' @noRd
 NULL
 
@@ -86,5 +88,8 @@ NULL
 #' to `@srrstatsNA`, and placed together in this block, along with explanations
 #' for why each of these standards have been deemed not applicable.
 #' (These comments may also be deleted at any time.)
+#' @srrstatsNA {G1.5} No publication associated with the package makes
+#'   performance claims. The comparison with `PPforest` is reproduced by
+#'   `benchmarks/compare-ppforest.R` (G1.6).
 #' @noRd
 NULL
