@@ -68,6 +68,39 @@ If \code{lambda = 0}, the model is trained using Linear Discriminant Analysis (L
 \details{
 Mode is taken from the \code{mode} argument when explicit, and otherwise auto-detected from `y` (factor/character → classification, numeric → regression). Pass \code{mode = "classification"} to force classification on integer labels (e.g. binary 0/1), or \code{mode = "regression"} to assert intent on numeric responses.
 }
+\section{Input data}{
+
+With the formula interface, the feature matrix is built with
+\code{model.matrix()} from the formula without an intercept: numeric
+columns are used as they are, and each factor predictor becomes indicator
+columns, one per level. The response is taken with \code{model.response()}.
+With the matrix interface, \code{x} is converted with \code{as.matrix()}.
+
+Features must be numeric. Factor predictors are accepted only through the
+formula interface; character and list columns are an error, and so are
+missing or infinite values in the features or the response. Rows with
+missing values are not dropped: remove or impute them before training.
+
+A classification response that is not a factor is converted with
+\code{factor()}. To choose the groups and their order, pass \code{y} as a
+factor with those levels; to treat integer labels as groups, use
+\code{mode = "classification"}.
+
+The method makes no distributional assumptions. Each split looks for a
+linear combination of the features that separates the groups, so groups
+that differ only in non-linear ways need more splits. Results do not depend
+on the units of the features: rescaling or shifting a feature leaves the
+splits and predictions unchanged. Perfectly collinear features, or more
+features than observations at a node, make the LDA index
+(\code{lambda = 0}) singular; the node then cannot be split, it becomes a
+degenerate leaf, and a warning is issued. The PDA index (\code{lambda > 0})
+is not affected.
+
+The row and column names of the training data are kept in the model's
+\code{x}, and the column names in its variable importance. Predictions are
+returned in the order of the rows of \code{new_data}, without row names.
+}
+
 \examples{
 
 # Example 1: formula interface with the `iris` dataset

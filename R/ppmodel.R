@@ -252,7 +252,7 @@ permuted_importance.pprf <- function(model) {
   # by unifying `model$y` with the continuous response in `validate_data()`.
   .cached_or_compute(model, "permuted_importance", function() {
     .require_training_data(model, c("x", "y"))
-    ppforest2_vi_permuted_forest(model, model$x, model$y, model$seed)
+    stats::setNames(ppforest2_vi_permuted_forest(model, model$x, model$y, model$seed), colnames(model$x))
   })
 }
 
@@ -291,7 +291,7 @@ weighted_importance.pprf <- function(model) {
   # mode-correct for both classification and regression.
   .cached_or_compute(model, "weighted_importance", function() {
     .require_training_data(model, c("x", "y"))
-    ppforest2_vi_weighted_forest(model, model$x, model$y, model$vi$scale)
+    stats::setNames(ppforest2_vi_weighted_forest(model, model$x, model$y, model$vi$scale), colnames(model$x))
   })
 }
 

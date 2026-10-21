@@ -38,6 +38,7 @@ NULL
 #' @param leaf A leaf strategy object. Default depends on mode:
 #'   \code{\link{leaf_majority_vote}()} for classification, and
 #'   \code{\link{leaf_mean_response}()} for regression.
+#' @inheritSection pptr Input data
 #' @return A \code{pprf} model. Its S3 class vector is
 #'   \code{c("pprf_classification", "pprf", "ppmodel")} or
 #'   \code{c("pprf_regression", "pprf", "ppmodel")} depending on the mode.
@@ -194,7 +195,7 @@ pprf <- function(
   scale <- feature_scale(x)
   model$vi <- list(
     scale       = scale,
-    projections = ppforest2_vi_projections_forest(model, ncol(x), scale)
+    projections = stats::setNames(ppforest2_vi_projections_forest(model, ncol(x), scale), colnames(x))
   )
 
   # Lazy-compute cache for OOB metrics and permuted/weighted importance.

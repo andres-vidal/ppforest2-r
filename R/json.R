@@ -116,6 +116,17 @@ load_json <- function(path) {
   # `oob_metrics` mirrors the C++ Export shape: a list with `confusion_matrix`
   # + `error_rate` (classification) or `mse`/`mae`/`r_squared` (regression).
   # `oob_error()` extracts the right scalar from it without recomputation.
+  # Name the importance vectors by feature, as they are on a trained model.
+  feature_names <- as.character(model$feature_names)
+  model$feature_names <- NULL
+  if (length(feature_names) > 0L) {
+    for (field in c("scale", "projections", "weighted", "permuted")) {
+      if (length(model$vi[[field]]) == length(feature_names)) {
+        names(model$vi[[field]]) <- feature_names
+      }
+    }
+  }
+
   model$.cache <- .new_cache()
   oob_scalar <- if (!is.null(model$oob_metrics)) {
     if (is_regression) model$oob_metrics$mse else model$oob_metrics$error_rate
