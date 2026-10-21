@@ -57,7 +57,8 @@ NULL
 #' features than observations at a node, make the LDA index
 #' (\code{lambda = 0}) singular; the node then cannot be split, it becomes a
 #' degenerate leaf, and a warning is issued. The PDA index (\code{lambda > 0})
-#' is not affected.
+#' is not affected. A warning is also issued for features that are perfectly
+#' collinear with each other or with a regression response.
 #'
 #' The row and column names of the training data are kept in the model's
 #' \code{x}, and the column names in its variable importance. Predictions are
