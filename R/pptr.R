@@ -36,6 +36,12 @@ NULL
 #'   \code{c("pptr_classification", "pptr", "ppmodel")} or
 #'   \code{c("pptr_regression", "pptr", "ppmodel")} depending on the mode.
 #' @seealso \code{\link{predict.pptr_classification}}, \code{\link{predict.pptr_regression}}, \code{\link{formula.ppmodel}}, \code{\link{print.pptr}}, \code{\link{save_json}}, \code{\link{load_json}}, \code{\link{pp_tree}} for parsnip integration
+#' @references
+#' Lee, Y. D., Cook, D., Park, J. and Lee, E.-K. (2013). PPtree: Projection pursuit classification tree. \emph{Electronic Journal of Statistics}, 7. \doi{10.1214/13-EJS810}
+#'
+#' @srrstats {G1.0} The primary references for the method are listed under
+#'   References and in `DESCRIPTION`.
+#' @srrstats {G1.4} Every exported function is documented with roxygen2.
 #' @examples
 #'
 #' # Example 1: formula interface with the `iris` dataset
@@ -221,8 +227,10 @@ print.pptr <- function(x, ...) {
   invisible(x)
 }
 
-# Internal generic: walks the tree recursively, dispatching on the model's
-# class to format leaf values differently per mode.
+#' Print a tree node and its subtree.
+#'
+#' Dispatches on the model's class so that leaf values are formatted per mode.
+#' @noRd
 print_node <- function(model, node, depth = 0) UseMethod("print_node")
 
 #' @export
@@ -235,7 +243,10 @@ print_node.pptr_regression <- function(model, node, depth = 0) {
   .print_node_impl(model, node, depth, function(value) format(as.numeric(value), digits = 4))
 }
 
-# Shared recursion. `format_leaf` turns the raw leaf value into a display string.
+#' Print a tree node recursively.
+#'
+#' `format_leaf` turns a raw leaf value into the string printed for it.
+#' @noRd
 .print_node_impl <- function(model, node, depth, format_leaf) {
   indent <- paste(rep(" ", depth), collapse = "")
 

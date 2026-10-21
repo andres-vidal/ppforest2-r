@@ -80,6 +80,9 @@ pptr(Species ~ ., data = iris, lambda = 0.5)
 pptr(x = iris[, 1:4], y = iris[, 5])
 
 }
+\references{
+Lee, Y. D., Cook, D., Park, J. and Lee, E.-K. (2013). PPtree: Projection pursuit classification tree. \emph{Electronic Journal of Statistics}, 7. \doi{10.1214/13-EJS810}
+}
 \seealso{
 \code{\link{predict.pptr_classification}}, \code{\link{predict.pptr_regression}}, \code{\link{formula.ppmodel}}, \code{\link{print.pptr}}, \code{\link{save_json}}, \code{\link{load_json}}, \code{\link{pp_tree}} for parsnip integration
 }
