@@ -250,6 +250,10 @@ feature_scale <- function(x) {
 #' Check that the `type` argument of `predict()` is a single string.
 #'
 #' The methods then check which values they support.
+#' @srrstats {G2.2, G2.3, G2.3a} `type` must be a single character string, and
+#'   each method accepts only its documented values and errors on any other.
+#' @srrstats {G2.3b} `type` and `mode` are case-sensitive, as documented in
+#'   `pptr()`, `pprf()` and the `predict()` methods.
 #' @noRd
 check_prediction_type <- function(type) {
   if (!is.character(type) || length(type) != 1L || is.na(type)) {
@@ -274,6 +278,10 @@ n_model_features <- function(object) {
 }
 
 #' Check the feature matrix passed to `predict()`.
+#'
+#' @srrstats {G2.0} `new_data` must have as many columns as the model has
+#'   features.
+#' @srrstats {G2.1} `new_data` must be numeric.
 #' @noRd
 check_new_data <- function(x, n_features) {
   if (!is.numeric(x)) {
@@ -311,6 +319,16 @@ check_no_list_columns <- function(data) {
 #' Accepts the formula interface (`formula` and `data`) or the matrix
 #' interface (`x` and `y`), and returns the numeric feature matrix, the
 #' response, the class labels and the resolved mode.
+#'
+#' @srrstats {G2.0, G2.0a} `x` must have one row per value of `y`, at least one
+#'   row and column, and at least as many rows as classes. The lengths are
+#'   documented under `x` and `y` in `pptr()`.
+#' @srrstats {G2.1, G2.1a, G2.4, G2.4b, G2.4d} `x` is converted with
+#'   `as.matrix()` and must then be numeric; a classification response is
+#'   converted with `factor()`. The accepted types are documented under `x` and
+#'   `y` in `pptr()`.
+#' @srrstats {G2.3, G2.3a} `mode` must be `NULL` or one of
+#'   `"classification"` and `"regression"`.
 #' @noRd
 resolve_model_data <- function(formula, data, x, y, mode = NULL) {
   if (!is.null(formula) && !is.null(data)) {

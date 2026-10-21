@@ -9,20 +9,6 @@
 #'
 #' @srrstatsVerbose TRUE
 #'
-#' @srrstatsTODO {G2.0} *Implement assertions on lengths of inputs, particularly through asserting that inputs expected to be single- or multi-valued are indeed so.*
-#' @srrstatsTODO {G2.0a} Provide explicit secondary documentation of any expectations on lengths of inputs
-#' @srrstatsTODO {G2.1} *Implement assertions on types of inputs (see the initial point on nomenclature above).*
-#' @srrstatsTODO {G2.1a} *Provide explicit secondary documentation of expectations on data types of all vector inputs.*
-#' @srrstatsTODO {G2.2} *Appropriately prohibit or restrict submission of multivariate input to parameters expected to be univariate.*
-#' @srrstatsTODO {G2.3} *For univariate character input:*
-#' @srrstatsTODO {G2.3a} *Use `match.arg()` or equivalent where applicable to only permit expected values.*
-#' @srrstatsTODO {G2.3b} *Either: use `tolower()` or equivalent to ensure input of character parameters is not case dependent; or explicitly document that parameters are strictly case-sensitive.*
-#' @srrstatsTODO {G2.4} *Provide appropriate mechanisms to convert between different data types, potentially including:*
-#' @srrstatsTODO {G2.4a} *explicit conversion to `integer` via `as.integer()`*
-#' @srrstatsTODO {G2.4b} *explicit conversion to continuous via `as.numeric()`*
-#' @srrstatsTODO {G2.4c} *explicit conversion to character via `as.character()` (and not `paste` or `paste0`)*
-#' @srrstatsTODO {G2.4d} *explicit conversion to factor via `as.factor()`*
-#' @srrstatsTODO {G2.4e} *explicit conversion from factor via `as...()` functions*
 #' @srrstatsTODO {G2.5} *Where inputs are expected to be of `factor` type, secondary documentation should explicitly state whether these should be `ordered` or not, and those inputs should provide appropriate error or other routines to ensure inputs follow these expectations.* 
 #' @srrstatsTODO {G2.6} *Software which accepts one-dimensional input should ensure values are appropriately pre-processed regardless of class structures.* 
 #' @srrstatsTODO {G2.7} *Software should accept as input as many of the above standard tabular forms as possible, including extension to domain-specific forms.* 
@@ -91,5 +77,7 @@ NULL
 #' @srrstatsNA {G1.5} No publication associated with the package makes
 #'   performance claims. The comparison with `PPforest` is reproduced by
 #'   `benchmarks/compare-ppforest.R` (G1.6).
+#' @srrstatsNA {G2.4c} Nothing in the modelling path converts to character.
+#' @srrstatsNA {G2.4e} Nothing converts a factor to another type.
 #' @noRd
 NULL

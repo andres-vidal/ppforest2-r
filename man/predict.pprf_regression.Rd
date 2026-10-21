@@ -11,7 +11,7 @@
 
 \item{new_data}{A data frame or matrix of new observations.}
 
-\item{type}{Must be \code{"response"} (default).}
+\item{type}{Must be \code{"response"} (default; case-sensitive).}
 
 \item{...}{For backward compatibility, the first positional argument is treated as \code{new_data} when \code{new_data} is \code{NULL}.}
 }

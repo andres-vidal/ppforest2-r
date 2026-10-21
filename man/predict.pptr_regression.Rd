@@ -11,7 +11,7 @@
 
 \item{new_data}{A data frame or matrix of new observations.}
 
-\item{type}{Must be \code{"response"} (default).}
+\item{type}{Must be \code{"response"} (default; case-sensitive).}
 
 \item{...}{Backward-compat positional `new_data`.}
 }
