@@ -32,6 +32,37 @@ NULL
 #' @param leaf A leaf strategy object. Default depends on mode:
 #'   \code{\link{leaf_majority_vote}()} for classification, and
 #'   \code{\link{leaf_mean_response}()} for regression.
+#' @section Input data:
+#' With the formula interface, the feature matrix is built with
+#' \code{model.matrix()} from the formula without an intercept: numeric
+#' columns are used as they are, and each factor predictor becomes indicator
+#' columns, one per level. The response is taken with \code{model.response()}.
+#' With the matrix interface, \code{x} is converted with \code{as.matrix()}.
+#'
+#' Features must be numeric. Factor predictors are accepted only through the
+#' formula interface; character and list columns are an error, and so are
+#' missing or infinite values in the features or the response. Rows with
+#' missing values are not dropped: remove or impute them before training.
+#'
+#' A classification response that is not a factor is converted with
+#' \code{factor()}. To choose the groups and their order, pass \code{y} as a
+#' factor with those levels; to treat integer labels as groups, use
+#' \code{mode = "classification"}.
+#'
+#' The method makes no distributional assumptions. Each split looks for a
+#' linear combination of the features that separates the groups, so groups
+#' that differ only in non-linear ways need more splits. Results do not depend
+#' on the units of the features: rescaling or shifting a feature leaves the
+#' splits and predictions unchanged. Perfectly collinear features, or more
+#' features than observations at a node, make the LDA index
+#' (\code{lambda = 0}) singular; the node then cannot be split, it becomes a
+#' degenerate leaf, and a warning is issued. The PDA index (\code{lambda > 0})
+#' is not affected.
+#'
+#' The row and column names of the training data are kept in the model's
+#' \code{x}, and the column names in its variable importance. Predictions are
+#' returned in the order of the rows of \code{new_data}, without row names.
+#'
 #' @return A \code{pptr} model. Its S3 class vector is
 #'   \code{c("pptr_classification", "pptr", "ppmodel")} or
 #'   \code{c("pptr_regression", "pptr", "ppmodel")} depending on the mode.
@@ -42,6 +73,14 @@ NULL
 #' @srrstats {G1.0} The primary references for the method are listed under
 #'   References and in `DESCRIPTION`.
 #' @srrstats {G1.4} Every exported function is documented with roxygen2.
+#' @srrstats {RE1.0} Models can be specified with a formula.
+#' @srrstats {RE1.1, RE1.2, RE1.3a, RE1.4, RE2.0} The "Input data" section
+#'   documents how the formula becomes a feature matrix, the accepted and
+#'   rejected predictor types, the transformations applied and how to avoid
+#'   them, the assumptions and the effect of violating them, and that row names
+#'   are not carried into predictions.
+#' @srrstats {RE1.3} The row and column names of the training data are kept in
+#'   `model$x`, and the column names in the variable importance vectors.
 #' @srrstats {G2.4a} `seed` must be integer-valued and is converted with
 #'   `as.integer()` before reaching the C++ core.
 #' @examples
@@ -131,7 +170,7 @@ pptr <- function(
 
   model$vi <- list(
     scale       = scale,
-    projections = ppforest2_vi_projections_tree(model, ncol(x), scale)
+    projections = stats::setNames(ppforest2_vi_projections_tree(model, ncol(x), scale), colnames(x))
   )
 
   model$.cache <- .new_cache()
