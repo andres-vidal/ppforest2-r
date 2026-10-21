@@ -16,6 +16,8 @@
 #' @docType data
 #' @source Campbell, N.A., and Mahon, R.J. (1974) A multivariate study of variation in two species of rock crab of genus Leptograpsus. Australian Journal of Zoology, 22, 417-425.
 #' @name crabs
+#' @srrstats {G5.1} The datasets used in the tests and examples are exported
+#'   and documented in this file, so they can be used to reproduce them.
 #'
 NULL
 
