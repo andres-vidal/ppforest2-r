@@ -82,6 +82,12 @@ NULL
 #'   are not carried into predictions.
 #' @srrstats {RE1.3} The row and column names of the training data are kept in
 #'   `model$x`, and the column names in the variable importance vectors.
+#' @srrstats {RE3.0, RE3.1} Nodes that projection pursuit cannot split, the
+#'   analogue of a failure to converge, produce a warning that can be
+#'   suppressed, and the model records them in `degenerate`.
+#' @srrstats {RE3.2, RE3.3} The stopping rules, which decide when a node stops
+#'   splitting, have documented defaults and are set with the `stop` argument;
+#'   `max_retries` in `pprf()` sets how often a degenerate tree is retrained.
 #' @srrstats {G2.4a} `seed` must be integer-valued and is converted with
 #'   `as.integer()` before reaching the C++ core.
 #' @examples
