@@ -20,6 +20,8 @@
 #' @srrstats {G1.6} `benchmarks/speed.R` and `benchmarks/memory.R` compare the
 #'   training time and memory of ppforest2 and `PPforest` on simulated data,
 #'   and the performance article presents their results.
+#' @srrstats {RE5.0} `benchmarks/scaling.R` measures how training time grows with
+#'   the number of observations and of variables.
 #' @noRd
 NULL
 
