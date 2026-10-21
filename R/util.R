@@ -216,6 +216,11 @@ print_oob_confusion_matrix <- function(model) {
 #' A data frame goes through the model's formula, without its response, so it
 #' does not need the response column. A matrix is used as is, which is what
 #' `fitted()` relies on to predict on `model$x`.
+#'
+#' @srrstats {G2.13, G2.15} Missing values in `new_data` are an error, and the
+#'   formula interface uses `na.action = na.pass` so that rows with missing
+#'   values are rejected rather than dropped before the check.
+#' @srrstats {G2.16} Infinite values in `new_data` are an error.
 #' @noRd
 process_predict_arguments <- function(object, new_data, ...) {
   if (is.null(new_data)) {
@@ -341,6 +346,12 @@ check_no_list_columns <- function(data) {
 #'   becomes a factor with the same labels, and numeric columns keep their
 #'   names. Inputs that would need a lossy conversion, such as non-numeric
 #'   features, are an error.
+#' @srrstats {G2.13, G2.14, G2.14a, G2.15} Missing values in `x` or `y` are an
+#'   error. The formula interface uses `na.action = na.pass`, so rows with
+#'   missing values reach the check instead of being dropped by the default
+#'   `na.omit`, and no computation receives a missing value.
+#' @srrstats {G2.16} Infinite values in `x` are an error, and so are infinite
+#'   values in a regression response.
 #' @noRd
 resolve_model_data <- function(formula, data, x, y, mode = NULL) {
   if (!is.null(formula) && !is.null(data)) {
