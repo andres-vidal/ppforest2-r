@@ -241,10 +241,17 @@ process_predict_arguments <- function(object, new_data, ...) {
   x
 }
 
-# Per-feature standard deviations used to scale variable importance. A
-# constant column has a standard deviation of zero up to rounding error, which
-# is detected relative to the column's magnitude; it gets a scale of 1 so its
-# coefficient is reported unscaled.
+#' Per-feature standard deviations used to scale variable importance.
+#'
+#' @srrstats {G3.0} A constant column has a standard deviation of zero up to
+#'   rounding error, so it is detected with a tolerance relative to the column's
+#'   magnitude rather than by comparing with zero; it gets a scale of 1 so its
+#'   coefficient is reported unscaled. `summary()` compares the scales with 1
+#'   using `all.equal()`. The other floating-point equality tests in the package
+#'   are exact by construction: `pp_pda()` labels a user-supplied `lambda` of
+#'   exactly 0 as LDA, and the tree structure plot tests whether the range of a
+#'   node's projected values, the difference of their maximum and minimum, is zero.
+#' @noRd
 feature_scale <- function(x) {
   scale <- apply(x, 2, stats::sd)
   tolerance <- sqrt(.Machine$double.eps) * apply(abs(x), 2, max)
