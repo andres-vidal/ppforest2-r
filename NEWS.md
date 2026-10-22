@@ -17,6 +17,7 @@
 - `pptr()` and `pprf()` reject empty data and list columns with explicit messages.
 - `save_json()` appends `.json` to a path without that suffix, and returns the path it wrote.
 - Constant features are detected with a tolerance relative to the feature's magnitude when scaling variable importance, and `summary()` detects standardized data with a tolerance.
+- A forest's training specification is converted between C++ and R once per forest instead of once per tree, which makes `pprf()`, `predict()` and the other functions that pass a forest to C++ faster for forests of many small trees.
 
 ## Documentation
 
