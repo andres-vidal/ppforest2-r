@@ -171,6 +171,21 @@ describe("pprf training spec", {
     expect_equal(model$training_spec$vars$count, 2)  # 0.5 * 4 = 2
   })
 
+  it("gives every tree the forest's training spec", {
+    model <- pprf(Species ~ ., data = iris, size = 5, seed = 0)
+    for (tree in model$trees) {
+      expect_identical(tree$training_spec, model$training_spec)
+    }
+  })
+
+  it("predicts the same after one tree's training spec is changed in R", {
+    model <- pprf(Species ~ ., data = iris, size = 5, seed = 0)
+    changed <- model
+    changed$trees[[1]]$training_spec$seed <- model$training_spec$seed + 1
+    expect_identical(changed$trees[[2]]$training_spec, model$training_spec)
+    expect_identical(predict(changed, iris), predict(model, iris))
+  })
+
   it("generates as many trees as indicated by the size parameter", {
     model <- pprf(Species ~ ., data = iris, size = 3, threads = 1)
     expect_equal(length(model$trees), 3)
