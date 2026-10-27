@@ -66,6 +66,12 @@
   feature’s magnitude when scaling variable importance, and
   [`summary()`](https://rdrr.io/r/base/summary.html) detects
   standardized data with a tolerance.
+- A forest’s training specification is converted between C++ and R once
+  per forest instead of once per tree, which makes
+  [`pprf()`](https://andres-vidal.github.io/ppforest2-r/reference/pprf.md),
+  [`predict()`](https://rdrr.io/r/stats/predict.html) and the other
+  functions that pass a forest to C++ faster for forests of many small
+  trees.
 
 ### Documentation
 

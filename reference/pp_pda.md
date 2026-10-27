@@ -55,7 +55,7 @@ pptr(Species ~ ., data = iris, pp = pp_pda(0.5))
 #> Call: pptr(formula = Species ~ ., data = iris, pp = pp_pda(0.5))
 #> 
 #> Projection-Pursuit Oblique Decision Tree:
-#> If ([ 0 -0.04 0.03 0.03 ] * x) < 0.01580044:
+#> If ([ 0 -0.04 0.03 0.03 ] * x) < 0.01580039:
 #>   Predict: setosa 
 #> Else:
 #>  If ([ 0 0.03 -0.06 -0.15 ] * x) < -0.4503323:

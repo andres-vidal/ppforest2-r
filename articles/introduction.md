@@ -19,7 +19,7 @@ tree
 #> Call: pptr(formula = Species ~ ., data = iris, seed = 0)
 #> 
 #> Projection-Pursuit Oblique Decision Tree:
-#> If ([ 0 -0.04 0.03 0.03 ] * x) < 0.01580044:
+#> If ([ 0 -0.04 0.03 0.03 ] * x) < 0.01580039:
 #>   Predict: setosa 
 #> Else:
 #>  If ([ 0 0.03 -0.06 -0.15 ] * x) < -0.4503323:
@@ -65,11 +65,11 @@ summary(tree)
 #> 
 #> Variable Importance:
 #> 
-#>       Variable         σ  Projection
-#> 1  Petal.Width 0.7622377 0.067165621
-#> 2 Petal.Length 1.7652982 0.064908713
-#> 3  Sepal.Width 0.4358663 0.011343628
-#> 4 Sepal.Length 0.8280661 0.001772132
+#>       Variable         σ Projection
+#> 1  Petal.Width 0.7622377 0.06716561
+#> 2 Petal.Length 1.7652982 0.06490873
+#> 3  Sepal.Width 0.4358663 0.01134362
+#> 4 Sepal.Length 0.8280661 0.00177213
 #> 
 #> Note: Variable importance was calculated using scaled coefficients (|a_j| * σ_j).
 #> Variable contributions can only be theoretically interpreted as such
@@ -140,10 +140,10 @@ summary(forest)
 #> Variable Importance:
 #> 
 #>       Variable         σ  Projection    Weighted   Permuted
-#> 1 Petal.Length 1.7652982 0.060925536 0.044617556 0.31747234
-#> 2  Petal.Width 0.7622377 0.045294985 0.035571091 0.24510610
-#> 3 Sepal.Length 0.8280661 0.013997004 0.006649137 0.06048262
-#> 4  Sepal.Width 0.4358663 0.007664503 0.005792385 0.03662244
+#> 1 Petal.Length 1.7652982 0.060925540 0.044617556 0.31747234
+#> 2  Petal.Width 0.7622377 0.045294981 0.035571087 0.24510610
+#> 3 Sepal.Length 0.8280661 0.013997004 0.006649136 0.06048262
+#> 4  Sepal.Width 0.4358663 0.007664502 0.005792385 0.03662244
 #> 
 #> Note: Variable importance was calculated using scaled coefficients (|a_j| * σ_j).
 #> Variable contributions can only be theoretically interpreted as such
@@ -268,11 +268,11 @@ summary(tree_pda)
 #> 
 #> Variable Importance:
 #> 
-#>       Variable         σ  Projection
-#> 1  Petal.Width 0.7622377 0.067165621
-#> 2 Petal.Length 1.7652982 0.064908713
-#> 3  Sepal.Width 0.4358663 0.011343628
-#> 4 Sepal.Length 0.8280661 0.001772132
+#>       Variable         σ Projection
+#> 1  Petal.Width 0.7622377 0.06716561
+#> 2 Petal.Length 1.7652982 0.06490873
+#> 3  Sepal.Width 0.4358663 0.01134362
+#> 4 Sepal.Length 0.8280661 0.00177213
 #> 
 #> Note: Variable importance was calculated using scaled coefficients (|a_j| * σ_j).
 #> Variable contributions can only be theoretically interpreted as such

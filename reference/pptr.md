@@ -156,7 +156,7 @@ pptr(Species ~ ., data = iris)
 #> Call: pptr(formula = Species ~ ., data = iris)
 #> 
 #> Projection-Pursuit Oblique Decision Tree:
-#> If ([ 0 -0.04 0.03 0.03 ] * x) < 0.01580044:
+#> If ([ 0 -0.04 0.03 0.03 ] * x) < 0.01580039:
 #>   Predict: setosa 
 #> Else:
 #>  If ([ 0 0.03 -0.06 -0.15 ] * x) < -0.4503323:
@@ -171,7 +171,7 @@ pptr(Species ~ ., data = iris, lambda = 0.5)
 #> Call: pptr(formula = Species ~ ., data = iris, lambda = 0.5)
 #> 
 #> Projection-Pursuit Oblique Decision Tree:
-#> If ([ 0 -0.04 0.03 0.03 ] * x) < 0.01580044:
+#> If ([ 0 -0.04 0.03 0.03 ] * x) < 0.01580039:
 #>   Predict: setosa 
 #> Else:
 #>  If ([ 0 0.03 -0.06 -0.15 ] * x) < -0.4503323:
@@ -186,7 +186,7 @@ pptr(x = iris[, 1:4], y = iris[, 5])
 #> Call: pptr(x = iris[, 1:4], y = iris[, 5])
 #> 
 #> Projection-Pursuit Oblique Decision Tree:
-#> If ([ 0 -0.04 0.03 0.03 ] * x) < 0.01580044:
+#> If ([ 0 -0.04 0.03 0.03 ] * x) < 0.01580039:
 #>   Predict: setosa 
 #> Else:
 #>  If ([ 0 0.03 -0.06 -0.15 ] * x) < -0.4503323:
