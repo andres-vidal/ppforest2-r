@@ -172,9 +172,11 @@ namespace Rcpp {
     return result;
   }
 
-  inline SEXP wrap(BaggedTree const& tree) {
+  // A bagged tree with an already converted training spec, so that a forest
+  // converts its spec once and every tree shares that R object.
+  inline SEXP wrap_bagged_tree(BaggedTree const& tree, SEXP training_spec) {
     Rcpp::List result = Rcpp::List::create(
-        Rcpp::Named("training_spec")  = Rcpp::wrap(*tree.model->training_spec),
+        Rcpp::Named("training_spec")  = training_spec,
         Rcpp::Named("root")           = wrap_node_with_mode(*tree.model->root, tree.model->training_spec->mode),
         Rcpp::Named("sample_indices") = Rcpp::wrap(tree.sample_indices)
     );
@@ -182,15 +184,23 @@ namespace Rcpp {
     return result;
   }
 
+  inline SEXP wrap(BaggedTree const& tree) {
+    return wrap_bagged_tree(tree, Rcpp::wrap(*tree.model->training_spec));
+  }
+
+  // Every tree of a forest is trained with the forest's training spec, so the
+  // spec is converted once and shared by the trees. R copies it on
+  // modification, so changing one tree's spec does not affect the others.
   inline SEXP wrap(Forest const& forest) {
+    Rcpp::List training_spec = Rcpp::wrap(*forest.training_spec);
     Rcpp::List trees(forest.trees.size());
 
     for (size_t i = 0; i < forest.trees.size(); i++) {
-      trees[i] = wrap(*forest.trees[i]);
+      trees[i] = wrap_bagged_tree(*forest.trees[i], training_spec);
     }
 
     Rcpp::List result = Rcpp::List::create(
-        Rcpp::Named("training_spec") = Rcpp::wrap(*forest.training_spec),
+        Rcpp::Named("training_spec") = training_spec,
         Rcpp::Named("trees")         = trees,
         Rcpp::Named("degenerate")    = forest.degenerate
     );
@@ -466,10 +476,8 @@ namespace Rcpp {
   }
 
   // Construct the concrete Tree subclass based on the spec's mode.
-  template<> inline Tree::Ptr as(SEXP x) {
-    Rcpp::List rtree(x);
-
-    auto spec = as<TrainingSpec::Ptr>(rtree["training_spec"]);
+  // A tree from its R list, with its training spec already converted.
+  inline Tree::Ptr as_tree(Rcpp::List rtree, TrainingSpec::Ptr spec) {
     auto root = as_node_with_mode(rtree["root"], spec->mode);
 
     if (is_regression(spec)) {
@@ -484,6 +492,11 @@ namespace Rcpp {
     Rcpp::CharacterVector group_names = rtree["groups"];
     auto groups                       = group_ids_from_names(group_names);
     return std::make_unique<ClassificationTree>(std::move(root), spec, std::move(groups));
+  }
+
+  template<> inline Tree::Ptr as(SEXP x) {
+    Rcpp::List rtree(x);
+    return as_tree(rtree, as<TrainingSpec::Ptr>(rtree["training_spec"]));
   }
 
   template<> inline std::unique_ptr<BaggedTree> as(SEXP x) {
@@ -515,9 +528,15 @@ namespace Rcpp {
       forest                            = std::make_unique<ClassificationForest>(spec, std::move(groups));
     }
 
+    // The trees of a trained forest share the forest's training spec object
+    // (see `wrap(Forest)`), so a tree whose spec is that same object reuses the
+    // converted spec. A spec that was changed in R is converted on its own.
     for (size_t i = 0; i < rtrees.size(); ++i) {
-      auto bt = as<std::unique_ptr<BaggedTree>>(rtrees[i]);
-      forest->add_tree(std::move(bt));
+      Rcpp::List rtree(rtrees[i]);
+      SEXP rtree_spec = rtree["training_spec"];
+      auto tree_spec  = rtree_spec == SEXP(rtraining_spec) ? spec : as<TrainingSpec::Ptr>(rtree_spec);
+      auto tree       = as_tree(rtree, tree_spec);
+      forest->add_tree(BaggedTree::make(std::move(tree), as<std::vector<int>>(rtree["sample_indices"])));
     }
 
     return forest;
