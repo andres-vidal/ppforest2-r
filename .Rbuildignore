@@ -16,3 +16,5 @@
 ^CLAUDE\.md$
 ^CODE_OF_CONDUCT\.md$
 ^\.covrignore$
+^benchmarks$
+^vignettes/articles$

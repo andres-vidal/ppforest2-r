@@ -107,10 +107,39 @@ save_json(model, "model.json")
 restored <- load_json("model.json")
 ```
 
+## Relation to other packages
+
+ppforest2 implements published methods that already have an R
+implementation: projection pursuit classification trees (Lee, Cook, Park
+and Lee, 2013, <doi:10.1214/13-EJS810>) and projection pursuit forests
+(da Silva, Cook and Lee, 2021, <doi:10.1080/10618600.2020.1870480>),
+available in [`PPforest`](https://cran.r-project.org/package=PPforest) and
+[`PPtreeViz`](https://cran.r-project.org/package=PPtreeViz). It improves on
+that implementation rather than introducing a new algorithm: the method is
+implemented in C++, which makes training several times faster, with the gap
+widening as the number of observations grows, and the package adds
+experimental regression, JSON serialization and tidymodels integration. For
+single trees, the projections and predictions match
+`PPforest::PPtree_split()`; the package's tests check this on five datasets
+against stored `PPforest` outputs. The
+[performance article](https://andres-vidal.github.io/ppforest2-r/articles/performance.html)
+compares training time and memory in both packages, reproducing at a smaller
+scale the evaluation in Vidal (2026),
+<https://hdl.handle.net/20.500.12008/56830>.
+
+[`ODRF`](https://cran.r-project.org/package=ODRF) also builds oblique trees
+and forests, and offers several ways to choose the linear combinations, of
+which projection pursuit is one. ppforest2 implements only the projection
+pursuit trees and forests described above, following the `PPforest`
+algorithm. `obliqueRF` and `oblique.tree`, two earlier oblique tree
+packages, were archived on CRAN in 2022 and 2017.
+
 ## Learning more
 
 - `vignette("introduction")` — a tutorial covering trees, forests,
   visualisation, and tidymodels integration.
+- [Performance compared with PPforest](https://andres-vidal.github.io/ppforest2-r/articles/performance.html)
+  — training time and memory of both packages.
 - [GitHub repository](https://github.com/andres-vidal/ppforest2-r) —
   source code and build instructions.
 - [ppforest2-core](https://github.com/andres-vidal/ppforest2-core) —

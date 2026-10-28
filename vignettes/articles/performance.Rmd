@@ -1,0 +1,214 @@
+---
+title: "Performance compared with PPforest"
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, fig.width = 8, dpi = 96)
+library(ggplot2)
+
+results <- file.path("..", "..", "benchmarks", "results")
+speed <- utils::read.csv(file.path(results, "speed.csv"))
+memory <- utils::read.csv(file.path(results, "memory.csv"))
+
+# The parameter each experiment varies, and the title of its panel.
+varying <- c(
+  n = "n", p = "p", p_v05 = "p", q = "q", l = "lambda", v = "pvars", f = "size",
+  t_n = "threads", t_p = "threads", t_q = "threads", s_n = "n", s_p = "p", s_q = "q"
+)
+titles <- c(
+  n = "Observations (n)", p = "Variables (p)", p_v05 = "Variables (p), pvars = 0.5",
+  q = "Groups (q)", l = "Regularization (lambda)", v = "Variables per split (pvars)",
+  f = "Trees (size)", t_n = "Threads, n = 8192", t_p = "Threads, p = 128",
+  t_q = "Threads, q = 16", s_n = "Observations (n)", s_p = "Variables (p)", s_q = "Groups (q)"
+)
+
+# One row per package and cell, with the varied parameter as `x`.
+long <- function(data, experiments) {
+  data <- data[data$experiment %in% experiments, ]
+  data$x <- vapply(seq_len(nrow(data)), function(i) data[i, varying[[data$experiment[i]]]], numeric(1))
+  data$title <- factor(titles[data$experiment], levels = titles[experiments])
+  rows <- lapply(c("PPforest", "ppforest2"), function(package) {
+    converged <- data[[paste0(package, "_converged")]]
+    data.frame(
+      title = data$title, x = data$x, package = package, value = data[[package]],
+      converged = if (is.null(converged)) TRUE else converged
+    )
+  })
+  rows <- do.call(rbind, rows)
+  rows[!is.na(rows$value) & rows$value > 0, ]
+}
+
+sweep_plot <- function(data, y) {
+  ggplot(data, aes(x, value, colour = package)) +
+    geom_line() +
+    geom_point(aes(shape = converged), size = 2) +
+    scale_shape_manual(values = c(`TRUE` = 16, `FALSE` = 1), guide = "none") +
+    scale_colour_manual(values = c(PPforest = "#E69F00", ppforest2 = "#0072B2")) +
+    scale_y_log10() +
+    facet_wrap(~title, scales = "free", ncol = 3) +
+    labs(x = NULL, y = y, colour = NULL) +
+    theme_minimal() +
+    theme(legend.position = "bottom")
+}
+
+# The range of PPforest's value over ppforest2's across an experiment's cells.
+ratio_table <- function(data, experiments) {
+  rows <- lapply(experiments, function(name) {
+    cells <- data[data$experiment == name, ]
+    ratio <- cells$PPforest / cells$ppforest2
+    values <- cells[[varying[[name]]]]
+    data.frame(
+      Experiment = titles[[name]],
+      Values = paste(format(min(values)), "to", format(max(values))),
+      Ratio = sprintf("%.0f to %.0f", min(ratio), max(ratio))
+    )
+  })
+  knitr::kable(do.call(rbind, rows), row.names = FALSE)
+}
+
+thread_axis <- scale_x_continuous(breaks = sort(unique(speed$threads[speed$experiment == "t_n"])))
+
+size_sweeps <- c("n", "p", "p_v05", "q", "l", "v", "f")
+thread_sweeps <- c("t_n", "t_p", "t_q")
+serial_sweeps <- c("s_n", "s_p", "s_q")
+method <- unique(memory$method)
+```
+
+ppforest2 is a new implementation of the projection pursuit forests of
+`PPforest`. Vidal
+(2026) compares the two implementations' training time and memory over the
+size of the problem, the hyperparameters and the number of threads
+(<https://hdl.handle.net/20.500.12008/56830>). This article reproduces those
+experiments at a smaller scale, with the scripts in
+[`benchmarks/`](https://github.com/andres-vidal/ppforest2-r/tree/main/benchmarks).
+The grids start where the two implementations begin to differ and stop at
+sizes that run on a laptop, and forests have fewer trees than in the thesis, so
+the figures reproduce the shape of each result but not its magnitudes.
+
+Each experiment varies one parameter on data simulated with the thesis's
+generator: `q` groups of normal observations in `p` variables, with random
+means and covariances. Both packages train forests of the same size, with the
+same `lambda` and the same number of variables per split. Each measurement is
+repeated until it is stable (see `benchmarks/README.md`).
+
+The results below were computed on this machine:
+
+```{r environment, comment = ""}
+writeLines(readLines(file.path(results, "speed-environment.txt")))
+```
+
+## Training time
+
+### Size of the problem
+
+With all the cores of the machine, ppforest2 trains faster in every
+experiment. The gap widens with the number of observations, and stays in a
+narrower band over the number of variables, the number of groups and the
+hyperparameters. Open points mark cells whose times did not stabilize: the
+fastest ppforest2 fits take a few milliseconds, which `system.time()` measures
+coarsely.
+
+```{r speed-size, fig.height = 7, fig.alt = "Training time of PPforest and ppforest2 against each varied parameter, on a log scale."}
+sweep_plot(long(speed, size_sweeps), "Training time (s)")
+```
+
+```{r speed-size-ratio}
+ratio_table(speed, size_sweeps)
+```
+
+The ratio is the time of `PPforest` over that of ppforest2.
+
+### One thread
+
+With one thread, the comparison isolates the algorithms from how each package
+runs in parallel. The gap still widens with the number of observations.
+
+```{r speed-serial, fig.height = 3, fig.alt = "Training time of PPforest and ppforest2 with one thread against the number of observations, variables and groups, on a log scale."}
+sweep_plot(long(speed, serial_sweeps), "Training time (s)")
+```
+
+```{r speed-serial-ratio}
+ratio_table(speed, serial_sweeps)
+```
+
+### Threads
+
+The speedup is the time with one thread over the time with `t` threads; the
+dashed line is a perfect speedup. ppforest2 trains its trees in threads of one
+process and speeds up in all three settings. PPforest forks worker processes,
+and gains little when the observations dominate the problem, because most of
+its time is spent in the parent process.
+
+```{r speed-threads, fig.height = 3, fig.alt = "Speedup of PPforest and ppforest2 against the number of threads, with a dashed line for a perfect speedup."}
+speedup <- speed[speed$experiment %in% thread_sweeps, ]
+speedup <- do.call(rbind, lapply(split(speedup, speedup$experiment), function(cells) {
+  cells$PPforest <- cells$PPforest[cells$threads == 1] / cells$PPforest
+  cells$ppforest2 <- cells$ppforest2[cells$threads == 1] / cells$ppforest2
+  cells
+}))
+sweep_plot(long(speedup, thread_sweeps), "Speedup") +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", colour = "grey60") +
+  scale_y_continuous() +
+  thread_axis
+```
+
+## Memory
+
+Memory is the peak the training adds to an R session: the peak of a process
+that trains a forest, minus that of one that only loads the packages and
+simulates the same data. These results were measured with **`r method`**.
+
+```{r memory-method, results = "asis"}
+if (identical(method, "sampled RSS, one process")) {
+  cat(
+    "On macOS, the memory a forked worker shares with its parent cannot be",
+    "told apart from its own, so only single processes are measured: the size",
+    "sweeps run with one thread for both packages, and the thread sweeps",
+    "measure ppforest2 alone. On Linux the scripts measure every process,",
+    "including the worker processes of `PPforest`.\n"
+  )
+}
+```
+
+### Size of the problem
+
+ppforest2 adds less memory in every experiment. The gap is widest over the
+number of observations, where the memory of `PPforest` grows faster than
+linearly, and narrowest over the number of variables, where both
+implementations store dense matrices of the size of `p` squared. Over the
+number of groups, the memory of ppforest2 grows faster than that of
+`PPforest`, so the ratio narrows, as in the thesis. The smallest ppforest2
+figures are a few megabytes over a baseline of about a hundred, so their
+ratios are approximate.
+
+```{r memory-size, fig.height = 7, fig.alt = "Peak memory added by training in PPforest and ppforest2 against each varied parameter, on a log scale."}
+sweep_plot(long(memory, size_sweeps), "Peak memory added (MB)")
+```
+
+```{r memory-size-ratio}
+ratio_table(memory, size_sweeps)
+```
+
+The ratio is the memory of `PPforest` over that of ppforest2.
+
+### Threads
+
+Each ppforest2 thread keeps its own working memory, so the peak grows
+modestly with the number of threads.
+
+```{r memory-threads, fig.height = 3, fig.alt = "Peak memory added by training in ppforest2 against the number of threads."}
+sweep_plot(long(memory, thread_sweeps), "Peak memory added (MB)") +
+  scale_y_continuous(limits = c(0, NA)) +
+  thread_axis
+```
+
+## Reproducing the results
+
+The scripts run from the repository root with both packages installed. See
+[`benchmarks/README.md`](https://github.com/andres-vidal/ppforest2-r/blob/main/benchmarks/README.md)
+for the versions and for running a subset of the experiments.
+
+```sh
+Rscript benchmarks/speed.R
+Rscript benchmarks/memory.R
+```
