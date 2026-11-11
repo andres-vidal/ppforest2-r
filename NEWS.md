@@ -1,8 +1,8 @@
-# ppforest2 (development version)
+# ppforest2 0.1.4
 
 ## Bug fixes
 
-- For forests trained on classification data whose rows are not grouped by class, `oob_error()`, `oob_predictions()`, `permuted_importance()` and `weighted_importance()` used the wrong out-of-bag observations, because each tree's bootstrap sample referred to the rows after they were sorted for training. The OOB error was too low as a result. The bootstrap samples now refer to the rows in the order given.
+- For forests trained on classification data whose rows are not sorted by the levels of the response (for example, grouped by class but in a different order), `oob_error()`, `oob_predictions()`, `permuted_importance()` and `weighted_importance()` used the wrong out-of-bag observations, because each tree's bootstrap sample referred to the rows after they were sorted for training. The OOB error was too low as a result. The bootstrap samples now refer to the rows in the order given.
 - For regression models, `model$x`, `model$y`, `fitted()` and `residuals()` follow the order of the training rows. They used to be sorted by the response, so `fitted()` did not line up with the data.
 - `predict()` errors when `new_data` has a different number of columns from the training data. It used to return predictions computed from mismatched columns.
 - `predict()` errors when `new_data` contains `NA`, `NaN` or infinite values. A data frame row with a missing value used to be dropped silently, so fewer predictions than rows were returned.

@@ -1,27 +1,26 @@
 ## Update
 
-This is an update (0.1.3). Its main purpose is to build with the upcoming
-RcppEigen release based on Eigen 5.
+This is an update (0.1.4). Its main purpose is to fix incorrect results.
 
-The vendored C++ core used `Eigen::all`, which Eigen 5 no longer accepts as an
-index. It now uses `Eigen::indexing::all`, which is available since Eigen 3.4.0.
-The change was contributed by Dirk Eddelbuettel, the RcppEigen maintainer. The
-package was checked against the current CRAN RcppEigen (0.3.4.0.2, Eigen 3.4.0)
-and against the RcppEigen 0.4.9.9.2 release candidate (Eigen 5.0.1).
+* For classification forests trained on data whose rows are not sorted by the
+  levels of the response, `oob_error()`, `oob_predictions()`,
+  `permuted_importance()` and `weighted_importance()` used the wrong
+  out-of-bag observations, so the reported out-of-bag error was too low.
+* For regression models, `fitted()` and `residuals()` did not line up with the
+  training rows.
+* `predict()` silently dropped rows with missing values, and returned
+  predictions for `new_data` with a different number of columns from the
+  training data. It now errors in both cases.
 
-The update also fixes an internal error in `pptr()` and `pprf()` for some
-orderings of the response's classes, clamps the OpenMP thread count to at
-least 1, and includes minor `summary()` and plot changes. See NEWS.md.
+The update also vendors version 0.1.4 of the C++ core, validates inputs more
+strictly, and lets `predict()` take new data without the response column. See
+NEWS.md.
 
 ## Test environments
 
-* local macOS (R release), R CMD check --as-cran, with CRAN RcppEigen 0.3.4.0.2
-  and with the RcppEigen 0.4.9.9.2 release candidate
-* GitHub Actions: Ubuntu, macOS, and Windows (R release), R CMD check --as-cran
-* win-builder: R-devel and R-release
-* R-devel (Linux, r-hub ubuntu-next container), R CMD check --as-cran
-* AddressSanitizer + UndefinedBehaviorSanitizer, clang and gcc (r-hub containers)
-* valgrind (r-hub container)
+* local macOS (R 4.6.1), R CMD check --as-cran
+* GitHub Actions: Ubuntu (R release, oldrel-1 and devel), macOS (with and
+  without OpenMP) and Windows (R release), R CMD check --as-cran
 
 ## R CMD check results
 
