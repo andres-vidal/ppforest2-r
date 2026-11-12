@@ -9,6 +9,8 @@
 ^Makefile$
 ^tools$
 ^CORE_VERSION$
+^\.git$
+^\.gitattributes$
 ^\.github$
 ^docs$
 ^\.clang-format$
