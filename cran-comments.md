@@ -1,3 +1,10 @@
+## Resubmission
+
+This is a resubmission. The previous 0.1.4 tarball accidentally included the
+package's `.git` directory, which the incoming check flagged as a hidden
+directory. It is now excluded via `.Rbuildignore`, and the tarball contains no
+hidden files.
+
 ## Update
 
 This is an update (0.1.4). Its main purpose is to fix incorrect results.
@@ -22,14 +29,6 @@ NEWS.md.
 * GitHub Actions: Ubuntu (R release, oldrel-1 and devel), macOS (with and
   without OpenMP) and Windows (R release), R CMD check --as-cran
 
-## R CMD check results
-
-0 errors | 0 warnings | 0 notes
-
-(If the incoming check flags "da" as possibly misspelled in the Description,
-that is part of the author name "da Silva" (Natalia da Silva) and is spelled
-correctly.)
-
 ## Notes for the reviewer
 
 * The package bundles a small amount of third-party C++ header code
@@ -48,3 +47,7 @@ correctly.)
 
 * All random number generation in the C++ core is seeded explicitly from R via
   `set.seed()`, so results are reproducible across platforms.
+
+* The author name "da Silva" (Natalia da Silva) in the Description may be flagged
+  by the incoming spell check as a possibly misspelled "da"; it is spelled
+  correctly.
