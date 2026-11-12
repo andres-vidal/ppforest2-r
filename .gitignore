@@ -21,3 +21,8 @@ tests/testthat/Rplots.pdf
 docs/
 CLAUDE.md
 .claude
+
+# Benchmark logs and local libraries; the results and environment records are committed
+benchmarks/results/lib/
+benchmarks/results/*.log
+benchmarks/results/*-old.*

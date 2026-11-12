@@ -66,35 +66,50 @@ check_patchwork <- function() {
   }
 }
 
-# ------------------------------------------------------------------
-# Design option accessor
-#
-# Each constant is read from options() with a default fallback, so
-# users can customize any value globally:
-#
-#   options(ppforest2.col_bar = "steelblue")
-#   options(ppforest2.alpha_region = 0.4)
-#
-# Or restore defaults by setting to NULL:
-#
-#   options(ppforest2.col_bar = NULL)
-# ------------------------------------------------------------------
+#' Reads a plot design option.
+#'
+#' Each constant is read from options() with a default fallback, so
+#' users can customize any value globally:
+#'
+#'   options(ppforest2.col_bar = "steelblue")
+#'   options(ppforest2.alpha_region = 0.4)
+#'
+#' Or restore defaults by setting to NULL:
+#'
+#'   options(ppforest2.col_bar = NULL)
+#' @noRd
 ppforest2_opt <- function(name, default) {
   getOption(paste0("ppforest2.", name), default)
 }
 
 # Node dimensions (must match C++ LayoutParams)
+#' Reads the node width plot option (`ppforest2.node_w`).
+#' @noRd
 ppforest2_node_w <- function() ppforest2_opt("node_w", 0.8)
+#' Reads the node height plot option (`ppforest2.node_h`).
+#' @noRd
 ppforest2_node_h <- function() ppforest2_opt("node_h", 0.7)
+#' Reads the leaf width plot option (`ppforest2.leaf_w`).
+#' @noRd
 ppforest2_leaf_w <- function() ppforest2_opt("leaf_w", 0.5)
+#' Reads the leaf height plot option (`ppforest2.leaf_h`).
+#' @noRd
 ppforest2_leaf_h <- function() ppforest2_opt("leaf_h", 0.3)
 
 # Line weights
+#' Reads the light line width plot option (`ppforest2.lw_light`).
+#' @noRd
 ppforest2_lw_light  <- function() ppforest2_opt("lw_light",  0.4)
+#' Reads the medium line width plot option (`ppforest2.lw_medium`).
+#' @noRd
 ppforest2_lw_medium <- function() ppforest2_opt("lw_medium", 0.6)
 
 # Point sizes
+#' Reads the small point size plot option (`ppforest2.pt_small`).
+#' @noRd
 ppforest2_pt_small  <- function() ppforest2_opt("pt_small",  1.2)
+#' Reads the medium point size plot option (`ppforest2.pt_medium`).
+#' @noRd
 ppforest2_pt_medium <- function() ppforest2_opt("pt_medium", 1.8)
 
 # Text sizes for the tree structure plot (geom_text/geom_label units, not points).
@@ -103,24 +118,54 @@ ppforest2_pt_medium <- function() ppforest2_opt("pt_medium", 1.8)
 # is what you want when rendering the plot large (posters, slides):
 #
 #   options(ppforest2.text_scale = 3)
+#' Reads the text size multiplier plot option (`ppforest2.text_scale`).
+#' @noRd
 ppforest2_text_scale <- function() ppforest2_opt("text_scale", 1)
+#' Reads the edge label text size plot option (`ppforest2.text_edge`).
+#' @noRd
 ppforest2_text_edge  <- function() ppforest2_opt("text_edge", 2.5) * ppforest2_text_scale()
+#' Reads the tick label text size plot option (`ppforest2.text_tick`).
+#' @noRd
 ppforest2_text_tick  <- function() ppforest2_opt("text_tick", 1.8) * ppforest2_text_scale()
+#' Reads the leaf label text size plot option (`ppforest2.text_leaf`).
+#' @noRd
 ppforest2_text_leaf  <- function() ppforest2_opt("text_leaf", 3.0) * ppforest2_text_scale()
+#' Reads the projector label text size plot option (`ppforest2.text_proj`).
+#' @noRd
 ppforest2_text_proj  <- function() ppforest2_opt("text_proj", 2.0) * ppforest2_text_scale()
 
 # Alpha values
+#' Reads the decision region opacity plot option (`ppforest2.alpha_region`).
+#' @noRd
 ppforest2_alpha_region <- function() ppforest2_opt("alpha_region", 0.25)
+#' Reads the histogram opacity plot option (`ppforest2.alpha_hist`).
+#' @noRd
 ppforest2_alpha_hist   <- function() ppforest2_opt("alpha_hist",   0.65)
+#' Reads the leaf fill opacity plot option (`ppforest2.alpha_leaf`).
+#' @noRd
 ppforest2_alpha_leaf   <- function() ppforest2_opt("alpha_leaf",   0.30)
+#' Reads the projected point opacity plot option (`ppforest2.alpha_proj`).
+#' @noRd
 ppforest2_alpha_proj   <- function() ppforest2_opt("alpha_proj",   0.60)
 
 # Structural colors (not data-mapped)
+#' Reads the edge colour plot option (`ppforest2.col_edge`).
+#' @noRd
 ppforest2_col_edge     <- function() ppforest2_opt("col_edge",     "grey55")
+#' Reads the node border colour plot option (`ppforest2.col_border`).
+#' @noRd
 ppforest2_col_border   <- function() ppforest2_opt("col_border",   "grey50")
+#' Reads the cutpoint line colour plot option (`ppforest2.col_cutpoint`).
+#' @noRd
 ppforest2_col_cutpoint <- function() ppforest2_opt("col_cutpoint", "grey25")
+#' Reads the decision boundary colour plot option (`ppforest2.col_boundary`).
+#' @noRd
 ppforest2_col_boundary <- function() ppforest2_opt("col_boundary", "grey30")
+#' Reads the tick colour plot option (`ppforest2.col_tick`).
+#' @noRd
 ppforest2_col_tick     <- function() ppforest2_opt("col_tick",     "grey40")
+#' Reads the bar colour plot option (`ppforest2.col_bar`).
+#' @noRd
 ppforest2_col_bar      <- function() ppforest2_opt("col_bar",      "#5B8BA0")
 
 #' Shared ggplot2 theme for all non-structure plots.

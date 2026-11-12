@@ -5,6 +5,18 @@ The C++ engine it compiles lives in
 [ppforest2-core](https://github.com/andres-vidal/ppforest2-core) and is
 vendored here under `src/core/`.
 
+## Life cycle
+
+This package is in a stable state of development, with some degree of active
+subsequent development as envisioned by the primary authors.
+
+Classification is stable: the interface of `pptr()`, `pprf()`, `predict()`
+and the variable importance functions is not expected to change, and any
+change to it will go through a deprecation period first.
+Regression support is experimental, and its defaults and outputs may change
+in minor releases. Results for a given seed only change in a release that
+documents the change in `NEWS.md`.
+
 ## Reporting issues
 
 - Search the [issue tracker](https://github.com/andres-vidal/ppforest2-r/issues)
