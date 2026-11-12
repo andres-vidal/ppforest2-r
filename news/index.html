@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ppforest2</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.3.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,10 +34,10 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="ppforest2-development-version">ppforest2 (development version)<a class="anchor" aria-label="anchor" href="#ppforest2-development-version"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.1.4" id="ppforest2-014">ppforest2 0.1.4<a class="anchor" aria-label="anchor" href="#ppforest2-014"></a></h2>
 <div class="section level3">
-<h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
-<ul><li>For forests trained on classification data whose rows are not grouped by class, <code><a href="../reference/oob_error.html">oob_error()</a></code>, <code><a href="../reference/oob_predictions.html">oob_predictions()</a></code>, <code><a href="../reference/permuted_importance.html">permuted_importance()</a></code> and <code><a href="../reference/weighted_importance.html">weighted_importance()</a></code> used the wrong out-of-bag observations, because each tree’s bootstrap sample referred to the rows after they were sorted for training. The OOB error was too low as a result. The bootstrap samples now refer to the rows in the order given.</li>
+<h3 id="bug-fixes-0-1-4">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-1-4"></a></h3>
+<ul><li>For forests trained on classification data whose rows are not sorted by the levels of the response (for example, grouped by class but in a different order), <code><a href="../reference/oob_error.html">oob_error()</a></code>, <code><a href="../reference/oob_predictions.html">oob_predictions()</a></code>, <code><a href="../reference/permuted_importance.html">permuted_importance()</a></code> and <code><a href="../reference/weighted_importance.html">weighted_importance()</a></code> used the wrong out-of-bag observations, because each tree’s bootstrap sample referred to the rows after they were sorted for training. The OOB error was too low as a result. The bootstrap samples now refer to the rows in the order given.</li>
 <li>For regression models, <code>model$x</code>, <code>model$y</code>, <code><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted()</a></code> and <code><a href="https://rdrr.io/r/stats/residuals.html" class="external-link">residuals()</a></code> follow the order of the training rows. They used to be sorted by the response, so <code><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted()</a></code> did not line up with the data.</li>
 <li>
 <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code> errors when <code>new_data</code> has a different number of columns from the training data. It used to return predictions computed from mismatched columns.</li>
@@ -52,7 +52,7 @@
 <code><a href="../reference/stop_min_size.html">stop_min_size()</a></code>, <code><a href="../reference/stop_min_variance.html">stop_min_variance()</a></code> and <code><a href="../reference/stop_max_depth.html">stop_max_depth()</a></code> error with a clear message when their argument is not a single value of the right type, instead of R’s “the condition has length &gt; 1” or silently truncating a non-integer.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="improvements-development-version">Improvements<a class="anchor" aria-label="anchor" href="#improvements-development-version"></a></h3>
+<h3 id="improvements-0-1-4">Improvements<a class="anchor" aria-label="anchor" href="#improvements-0-1-4"></a></h3>
 <ul><li>
 <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code> accepts a data frame without the response column for models trained through the formula interface.</li>
 <li>
@@ -63,12 +63,12 @@
 <li>A forest’s training specification is converted between C++ and R once per forest instead of once per tree, which makes <code><a href="../reference/pprf.html">pprf()</a></code>, <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code> and the other functions that pass a forest to C++ faster for forests of many small trees.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="documentation-development-version">Documentation<a class="anchor" aria-label="anchor" href="#documentation-development-version"></a></h3>
+<h3 id="documentation-0-1-4">Documentation<a class="anchor" aria-label="anchor" href="#documentation-0-1-4"></a></h3>
 <ul><li>
 <code>citation("ppforest2")</code> cites the package and the two papers describing the method, and <code><a href="../reference/ppforest2-package.html">?ppforest2</a></code> documents the package.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="packaging-and-build-development-version">Packaging and build<a class="anchor" aria-label="anchor" href="#packaging-and-build-development-version"></a></h3>
+<h3 id="packaging-and-build-0-1-4">Packaging and build<a class="anchor" aria-label="anchor" href="#packaging-and-build-0-1-4"></a></h3>
 <ul><li>
 <code>DESCRIPTION</code> lists the authors of the bundled nlohmann/json and PCG code as copyright holders, and <code>inst/COPYRIGHTS</code> gives their copyright and license.</li>
 </ul></div>

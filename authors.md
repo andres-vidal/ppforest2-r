@@ -18,14 +18,14 @@ Source:
 [`inst/CITATION`](https://github.com/andres-vidal/ppforest2-r/blob/main/inst/CITATION)
 
 Vidal A, da Silva N (2026). *ppforest2: Projection Pursuit Oblique
-Decision Trees and Random Forests*. R package version 0.1.3.9000,
+Decision Trees and Random Forests*. R package version 0.1.4,
 <https://github.com/andres-vidal/ppforest2-r>.
 
     @Manual{,
       title = {{ppforest2}: Projection Pursuit Oblique Decision Trees and Random Forests},
       author = {Andrés Vidal and Natalia {da Silva}},
       year = {2026},
-      note = {R package version 0.1.3.9000},
+      note = {R package version 0.1.4},
       url = {https://github.com/andres-vidal/ppforest2-r},
     }
 

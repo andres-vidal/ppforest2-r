@@ -1,11 +1,12 @@
 # Changelog
 
-## ppforest2 (development version)
+## ppforest2 0.1.4
 
 ### Bug fixes
 
-- For forests trained on classification data whose rows are not grouped
-  by class,
+- For forests trained on classification data whose rows are not sorted
+  by the levels of the response (for example, grouped by class but in a
+  different order),
   [`oob_error()`](https://andres-vidal.github.io/ppforest2-r/reference/oob_error.md),
   [`oob_predictions()`](https://andres-vidal.github.io/ppforest2-r/reference/oob_predictions.md),
   [`permuted_importance()`](https://andres-vidal.github.io/ppforest2-r/reference/permuted_importance.md)
