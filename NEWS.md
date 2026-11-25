@@ -1,3 +1,9 @@
+# ppforest2 (development version)
+
+## Documentation
+
+- The help pages for `crabs` and `olive` give the right dimensions: `crabs` has 7 columns, and `olive` has 572 rows and 9 columns, with the collection area in `Type` instead of the `Region` and `area` columns it listed.
+
 # ppforest2 0.1.4
 
 ## Bug fixes
