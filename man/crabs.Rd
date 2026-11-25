@@ -5,7 +5,7 @@
 \alias{crabs}
 \title{Crabs Dataset}
 \format{
-A data frame with 200 rows and 8 variables:
+A data frame with 200 rows and 7 variables:
 \describe{
   \item{Type}{Species code, with `B` indicating blue and `O` indicating orange.}
   \item{sex}{Sex of the crab, with `M` indicating male and `F` indicating female.}

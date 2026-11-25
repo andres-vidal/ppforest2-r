@@ -2,7 +2,7 @@
 #'
 #' Measurements of 200 crabs from the genus Leptograpsus, with 50 crabs for each of two colour forms and both sexes. Measurements include the frontal lobe size, rear width, carapace length, carapace width, and body depth.
 #'
-#' @format A data frame with 200 rows and 8 variables:
+#' @format A data frame with 200 rows and 7 variables:
 #' \describe{
 #'   \item{Type}{Species code, with `B` indicating blue and `O` indicating orange.}
 #'   \item{sex}{Sex of the crab, with `M` indicating male and `F` indicating female.}
@@ -168,10 +168,9 @@ NULL
 
 #' Olive Dataset
 #'
-#' Contains  572 observations and 10 variables
+#' Contains  572 observations and 9 variables
 #' \describe{
-#'   \item{Region}{Three super-groups of Italy: North, South and the island of Sardinia }
-#'   \item{area}{ Nine collection areas: three from North, four from South and 2 from Sardinia}
+#'   \item{Type}{Nine collection areas: three from North, four from South and 2 from Sardinia}
 #'   \item{palmitic}{ fatty acids percent x 100}
 #'   \item{palmitoleic}{ fatty acids percent x 100 }
 #'   \item{stearic}{fatty acids percent x 100}
@@ -186,7 +185,7 @@ NULL
 #' @keywords datasets
 #' @name olive
 #' @usage data(olive)
-#' @format A data frame contains 573 observations and 10 variables
+#' @format A data frame contains 572 observations and 9 variables
 NULL
 
 #' Parkinson Dataset

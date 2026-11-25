@@ -5,16 +5,15 @@
 \alias{olive}
 \title{Olive Dataset}
 \format{
-A data frame contains 573 observations and 10 variables
+A data frame contains 572 observations and 9 variables
 }
 \usage{
 data(olive)
 }
 \description{
-Contains  572 observations and 10 variables
+Contains  572 observations and 9 variables
 \describe{
-  \item{Region}{Three super-groups of Italy: North, South and the island of Sardinia }
-  \item{area}{ Nine collection areas: three from North, four from South and 2 from Sardinia}
+  \item{Type}{Nine collection areas: three from North, four from South and 2 from Sardinia}
   \item{palmitic}{ fatty acids percent x 100}
   \item{palmitoleic}{ fatty acids percent x 100 }
   \item{stearic}{fatty acids percent x 100}
